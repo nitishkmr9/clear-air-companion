@@ -146,7 +146,7 @@ function PlannerBody({ data }: { data: AirSnapshot }) {
   };
 
   return (
-    <div className="grid gap-5 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
       {/* Score */}
       <section className="surface flex flex-col items-center p-6 text-center lg:order-2">
         <p className="eyebrow">Clean air score</p>

@@ -124,7 +124,7 @@ function DashboardBody({ data }: { data: AirSnapshot }) {
   };
 
   return (
-    <div className="grid gap-5 md:grid-cols-3">
+    <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
       {/* Current air */}
       <section className="surface animate-rise p-6 md:col-span-2 md:p-8">
         <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-center">
