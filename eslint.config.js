@@ -36,5 +36,10 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": "off",
     },
   },
+  {
+    // Vendored UI kits export variants/helpers next to components by design.
+    files: ["src/components/ui/**/*.tsx", "src/components/ai-elements/**/*.tsx"],
+    rules: { "react-refresh/only-export-components": "off" },
+  },
   eslintPluginPrettier,
 );

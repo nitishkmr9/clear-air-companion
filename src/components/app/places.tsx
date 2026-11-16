@@ -5,7 +5,7 @@ import { useState } from "react";
 import { LevelPill } from "@/components/app/aqi-ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { fetchAirSnapshot, findWindows, windowLabel } from "@/lib/aqi";
+import { cleanestIndex, fetchAirSnapshot, findWindows, windowLabel } from "@/lib/aqi";
 import { newId } from "@/lib/family";
 import { placeStore, savedPlacesStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -33,12 +33,7 @@ export function SavedPlaces() {
     setAdding(false);
   };
 
-  const cleanest = queries.reduce<number | null>((best, q, i) => {
-    const aqi = q.data?.current.aqi;
-    if (aqi === undefined) return best;
-    const bestAqi = best === null ? undefined : queries[best]?.data?.current.aqi;
-    return bestAqi === undefined || aqi < bestAqi ? i : best;
-  }, null);
+  const cleanest = cleanestIndex(queries.map((q) => q.data?.current.aqi));
 
   return (
     <section className="surface p-6 md:col-span-2">
@@ -64,6 +59,7 @@ export function SavedPlaces() {
               <button
                 key={l}
                 type="button"
+                aria-pressed={label === l}
                 onClick={() => setLabel(l)}
                 className={cn(
                   "rounded-full border border-border px-3 py-1.5 text-xs",

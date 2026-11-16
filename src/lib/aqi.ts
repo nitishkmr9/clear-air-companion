@@ -305,6 +305,17 @@ export async function searchPlaces(query: string): Promise<Place[]> {
   );
 }
 
+/** Index of the lowest AQI among loaded readings (undefined = still loading), or null if none loaded. */
+export function cleanestIndex(aqis: (number | undefined)[]): number | null {
+  let best: number | null = null;
+  aqis.forEach((aqi, i) => {
+    if (aqi === undefined) return;
+    const bestAqi = best === null ? undefined : aqis[best];
+    if (bestAqi === undefined || aqi < bestAqi) best = i;
+  });
+  return best;
+}
+
 function round1(n: number) {
   return Math.round(n * 10) / 10;
 }

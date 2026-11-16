@@ -35,6 +35,7 @@ use the editor.
 - All user data (place, family, trips, impact, chat threads) lives in localStorage via `createStore` in `src/lib/store.ts`; it uses `useSyncExternalStore` so SSR renders defaults without hydration mismatches.
 - The AI chat streams from `src/routes/api/chat.ts` → `src/lib/chat.server.ts`, which re-fetches live air server-side and injects it plus family profiles into the instructions; keep model calls and the key there.
 - Chat threads use real URLs (`/assistant/$threadId`); queued first questions go through sessionStorage and are sent in a deferred effect so StrictMode sends once.
-- Impact, score and window rules are pure functions in `src/lib/impact.ts` / `src/lib/aqi.ts` with tests in `src/test/impact.test.ts`; change the tests with the rules.
+- Business rules are pure functions in `src/lib/*` with one test file per module in `src/test/` (shared fixtures in `src/test/fixtures.ts`); change the tests with the rules, and keep UI files thin so logic stays testable.
+- `bun run check` (lint + typecheck + coverage with thresholds in `vitest.config.ts`) is the quality gate and runs in `.github/workflows/ci.yml`; keep it green.
 - Clean-air alerts run in the open tab only (`AlertWatcher` in the app shell + browser Notification API); there is no push server, to keep the app free. Trigger rule lives in `src/lib/alerts.ts`.
-- Saved places, alert settings and diary entries are localStorage stores in `src/lib/store.ts`; the diary pattern rule is `src/lib/diary.ts`. Both rules are tested in `src/test/impact.test.ts`.
+- Saved places, alert settings and diary entries are localStorage stores in `src/lib/store.ts`; the diary pattern rule is `src/lib/diary.ts`.

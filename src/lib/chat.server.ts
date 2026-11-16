@@ -8,7 +8,7 @@ import { createResponsesCall } from "./ai/responses.ts";
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1";
 const MODEL = "openai/gpt-6-astra";
 
-const bodySchema = z.object({
+export const bodySchema = z.object({
   threadId: z.string().min(1).max(100),
   messages: z.array(z.any()).min(1).max(200),
   place: z.object({ name: z.string().max(200), lat: z.number(), lon: z.number() }),
@@ -44,7 +44,7 @@ function json(status: number, error: string) {
   });
 }
 
-function friendlyError(error: unknown) {
+export function friendlyError(error: unknown) {
   const status = (error as { statusCode?: number })?.statusCode;
   if (status === 429)
     return "I'm getting a lot of questions right now — please try again in a moment.";
@@ -54,7 +54,7 @@ function friendlyError(error: unknown) {
   return "Something went wrong while I was thinking. Please try again.";
 }
 
-function buildInstructions(
+export function buildInstructions(
   snapshot: Awaited<ReturnType<typeof fetchAirSnapshot>>,
   family: Member[],
 ) {
