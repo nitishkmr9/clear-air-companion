@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { AirError, AirLoading, LevelPill } from "@/components/app/aqi-ui";
 import { PageHeader } from "@/components/app/AppShell";
 import { findWindows, windowLabel, type AirSnapshot } from "@/lib/aqi";
+import { humidityTip as getHumidityTip, withIndoorHabit } from "@/lib/indoor";
 import { impactStore, indoorChecksStore, todayKey, useAir } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
@@ -104,36 +105,13 @@ function IndoorBody({ data }: { data: AirSnapshot }) {
   const openNow = c.aqi <= 100;
 
   const humidity = c.humidity;
-  const humidityTip =
-    humidity < 35
-      ? {
-          label: "A little dry",
-          tip: "Dry air irritates airways. A bowl of water near a heater or a humidifier helps reach 40–60%.",
-        }
-      : humidity > 65
-        ? {
-            label: "Quite humid",
-            tip: "Fog traps smog and damp invites mould. Run exhaust fans after showers and cooking.",
-          }
-        : {
-            label: "Comfortable",
-            tip: "Outdoor humidity is in the comfy range. Keep indoor air around 40–60%.",
-          };
+  const humidityTip = getHumidityTip(humidity);
 
   const toggle = (id: string, title: string, dose: number) => {
     const key = `${date}:${id}`;
     const on = !checks[key];
     indoorChecksStore.set((prev) => ({ ...prev, [key]: on }));
-    impactStore.set((prev) => {
-      const entryId = `${date}-indoor-${id}`;
-      const rest = prev.filter((e) => e.id !== entryId);
-      return on
-        ? [
-            ...rest,
-            { id: entryId, date, kind: "indoor", label: title, co2Kg: 0, money: 0, doseUg: dose },
-          ]
-        : rest;
-    });
+    impactStore.set((prev) => withIndoorHabit(prev, { date, id, title, doseUg: dose, on }));
   };
 
   return (

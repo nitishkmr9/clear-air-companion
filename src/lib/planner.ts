@@ -1,6 +1,7 @@
 import { findWindows, type HourPoint, type Window } from "./aqi";
 import { BREATHING_LPM, safeThreshold, type Member, type Routine } from "./family";
-import { doseAvoidedUg } from "./impact";
+import { doseAvoidedUg, MODE_META, tripSavings } from "./impact";
+import type { ImpactEntry, Trip } from "./store";
 
 export interface PlannedRoutine {
   member: Member;
@@ -63,4 +64,49 @@ export function planRoutines(family: Member[], hours: HourPoint[]): PlannedRouti
     }
   }
   return out.sort((a, b) => a.routine.hour - b.routine.hour);
+}
+
+/**
+ * Impact entries for committing today's plan: one per accepted cleaner-time shift
+ * and one per trip not made by solo car. Ids are per day, so re-saving replaces rather than doubles.
+ */
+export function planImpactEntries(
+  plan: PlannedRoutine[],
+  trips: Trip[],
+  declined: Set<string>,
+  date: string,
+): ImpactEntry[] {
+  const shifts: ImpactEntry[] = plan
+    .filter((p) => p.improves && !declined.has(p.routine.id))
+    .map((p) => ({
+      id: `${date}-shift-${p.routine.id}`,
+      date,
+      kind: "shift",
+      label: `${p.member.name}: ${p.routine.label} moved to cleaner air`,
+      co2Kg: 0,
+      money: 0,
+      doseUg: p.doseUg,
+    }));
+  const greener: ImpactEntry[] = trips
+    .filter((t) => t.mode !== "car")
+    .map((t) => {
+      const s = tripSavings(t.mode, t.km, t.riders);
+      return {
+        id: `${date}-trip-${t.id}`,
+        date,
+        kind: "trip",
+        label: `${t.label} by ${MODE_META[t.mode].label.toLowerCase()}`,
+        mode: t.mode,
+        co2Kg: s.co2Kg,
+        money: s.money,
+        doseUg: 0,
+      };
+    });
+  return [...shifts, ...greener];
+}
+
+/** Replace entries with the same id, keep everything else. */
+export function mergeImpactEntries(existing: ImpactEntry[], next: ImpactEntry[]) {
+  const ids = new Set(next.map((e) => e.id));
+  return [...existing.filter((e) => !ids.has(e.id)), ...next];
 }

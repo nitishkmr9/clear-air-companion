@@ -3,6 +3,7 @@ import { useSyncExternalStore } from "react";
 import type { UIMessage } from "ai";
 
 import { DEFAULT_PLACE, fetchAirSnapshot, type Place } from "./aqi";
+import { dateKey } from "./dates";
 import type { Member } from "./family";
 import type { TransportMode } from "./impact";
 
@@ -78,8 +79,7 @@ export const threadStore = createStore<Thread[]>("be.threads", []);
 export const indoorChecksStore = createStore<Record<string, boolean>>("be.indoor", {});
 
 export function todayKey() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  return dateKey(new Date());
 }
 
 export function useAir() {

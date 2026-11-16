@@ -103,7 +103,7 @@ export function HourlyStrip({ hours, highlight }: { hours: HourPoint[]; highligh
 
 export function AirLoading() {
   return (
-    <div className="grid gap-4 md:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       <Skeleton className="h-72 rounded-3xl md:col-span-2" />
       <Skeleton className="h-72 rounded-3xl" />
     </div>

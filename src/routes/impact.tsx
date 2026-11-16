@@ -5,6 +5,7 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 
 import { PageHeader } from "@/components/app/AppShell";
 import { Button } from "@/components/ui/button";
+import { lastDays } from "@/lib/dates";
 import { currentStreak } from "@/lib/impact";
 import { impactStore, todayKey } from "@/lib/store";
 
@@ -29,18 +30,6 @@ export const Route = createFileRoute("/impact")({
   component: ImpactPage,
 });
 
-function lastDays(n: number) {
-  const out: string[] = [];
-  const d = new Date();
-  for (let i = n - 1; i >= 0; i--) {
-    const x = new Date(d);
-    x.setDate(d.getDate() - i);
-    out.push(
-      `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`,
-    );
-  }
-  return out;
-}
 
 function ImpactPage() {
   const entries = impactStore.use();
@@ -135,7 +124,7 @@ function ImpactPage() {
           </div>
         </div>
       ) : (
-        <div className="mt-5 grid gap-5 lg:grid-cols-3">
+        <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-3">
           <ChartCard title="CO₂ avoided (kg)" data={chart} dataKey="co2" color="var(--chart-1)" />
           <ChartCard title="Money saved (₹)" data={chart} dataKey="money" color="var(--chart-2)" />
           <ChartCard

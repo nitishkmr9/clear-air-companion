@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { aqiInfo, hourLabel, LEVEL_CLASSES, windowLabel, type AirSnapshot } from "@/lib/aqi";
 import { KIND_META, newId } from "@/lib/family";
 import { cleanAirScore, MODE_META, tripSavings, type TransportMode } from "@/lib/impact";
-import { planRoutines } from "@/lib/planner";
+import { mergeImpactEntries, planImpactEntries, planRoutines } from "@/lib/planner";
 import {
   familyStore,
   impactStore,
@@ -106,42 +106,12 @@ function PlannerBody({ data }: { data: AirSnapshot }) {
 
   const logPlan = () => {
     const date = todayKey();
-    const entries: ImpactEntry[] = [
-      ...plan
-        .filter((p) => p.improves && !declined.has(p.routine.id))
-        .map((p) => ({
-          id: `${date}-shift-${p.routine.id}`,
-          date,
-          kind: "shift" as const,
-          label: `${p.member.name}: ${p.routine.label} moved to cleaner air`,
-          co2Kg: 0,
-          money: 0,
-          doseUg: p.doseUg,
-        })),
-      ...trips
-        .filter((t) => t.mode !== "car")
-        .map((t) => {
-          const s = tripSavings(t.mode, t.km, t.riders);
-          return {
-            id: `${date}-trip-${t.id}`,
-            date,
-            kind: "trip" as const,
-            label: `${t.label} by ${MODE_META[t.mode].label.toLowerCase()}`,
-            mode: t.mode,
-            co2Kg: s.co2Kg,
-            money: s.money,
-            doseUg: 0,
-          };
-        }),
-    ];
+    const entries = planImpactEntries(plan, trips, declined, date);
     if (entries.length === 0) {
       toast("Nothing to log yet — try a cleaner time or a greener trip.");
       return;
     }
-    impactStore.set((prev) => [
-      ...prev.filter((e) => !entries.some((n) => n.id === e.id)),
-      ...entries,
-    ]);
+    impactStore.set((prev) => mergeImpactEntries(prev, entries));
     toast.success("Today's plan is saved to your impact tracker 🌿");
   };
 

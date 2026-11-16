@@ -17,6 +17,7 @@ import { LevelPill } from "@/components/app/aqi-ui";
 import { PageHeader } from "@/components/app/AppShell";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { lastDays } from "@/lib/dates";
 import { diaryInsight } from "@/lib/diary";
 import { newId } from "@/lib/family";
 import {
@@ -65,18 +66,6 @@ const SEVERITY = [
   { v: 3 as const, label: "Strong" },
 ];
 
-function lastDays(n: number) {
-  const out: string[] = [];
-  const d = new Date();
-  for (let i = n - 1; i >= 0; i--) {
-    const x = new Date(d);
-    x.setDate(d.getDate() - i);
-    out.push(
-      `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`,
-    );
-  }
-  return out;
-}
 
 function DiaryPage() {
   const entries = diaryStore.use();
@@ -149,7 +138,7 @@ function DiaryPage() {
         description="A quick note when someone coughs or feels wheezy. Over time you'll see how smoggy days affect your family."
       />
 
-      <div className="grid gap-5 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
         <section className="surface p-6 lg:col-span-2">
           <p className="eyebrow">New entry</p>
           <h2 className="mt-1 font-display text-3xl">How is everyone feeling?</h2>

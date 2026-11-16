@@ -17,6 +17,7 @@ import {
   windowLabel,
   type AirSnapshot,
 } from "@/lib/aqi";
+import { greeting } from "@/lib/dates";
 import { KIND_META, safeThreshold } from "@/lib/family";
 import { familyStore, useAir } from "@/lib/store";
 import { createThread, STARTER_QUESTIONS } from "@/lib/threads";
@@ -44,13 +45,6 @@ export const Route = createFileRoute("/")({
   component: Dashboard,
 });
 
-function greeting(localIso?: string) {
-  if (!localIso) return "Hello";
-  const h = Number(localIso.slice(11, 13));
-  if (h < 12) return "Good morning";
-  if (h < 17) return "Good afternoon";
-  return "Good evening";
-}
 
 function Dashboard() {
   const { data, isPending, isError, refetch } = useAir();
