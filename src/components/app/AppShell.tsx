@@ -1,8 +1,9 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Bot, CalendarClock, HeartHandshake, Home, Sprout, Users } from "lucide-react";
+import { Bot, CalendarClock, HeartHandshake, HeartPulse, Home, Sprout, Users } from "lucide-react";
 import type { ReactNode } from "react";
 
 import logo from "@/assets/breatheeasy-logo.png";
+import { AlertWatcher } from "@/components/app/alerts";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -11,6 +12,7 @@ const NAV = [
   { to: "/assistant", label: "Ask", icon: Bot },
   { to: "/planner", label: "Planner", icon: CalendarClock },
   { to: "/indoor", label: "Indoor", icon: HeartHandshake },
+  { to: "/diary", label: "Diary", icon: HeartPulse },
   { to: "/impact", label: "Impact", icon: Sprout },
 ] as const;
 
@@ -32,7 +34,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 key={n.to}
                 to={n.to}
                 className={cn(
-                  "rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+                  "rounded-full px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
                   isActive(n.to) && "bg-primary-soft text-secondary-foreground",
                 )}
               >
@@ -43,10 +45,11 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
+      <AlertWatcher />
       <main>{children}</main>
 
       <nav className="fixed inset-x-3 bottom-3 z-40 rounded-3xl border border-border bg-card/90 px-1 py-1.5 shadow-lift backdrop-blur-xl md:hidden">
-        <ul className="grid grid-cols-6">
+        <ul className="grid grid-cols-7">
           {NAV.map((n) => {
             const Icon = n.icon;
             const active = isActive(n.to);
@@ -55,7 +58,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Link
                   to={n.to}
                   className={cn(
-                    "flex flex-col items-center gap-0.5 rounded-2xl py-1.5 text-[0.66rem] font-medium text-muted-foreground",
+                    "flex flex-col items-center gap-0.5 rounded-2xl py-1.5 text-[0.62rem] font-medium text-muted-foreground",
                     active && "bg-primary-soft text-secondary-foreground",
                   )}
                 >

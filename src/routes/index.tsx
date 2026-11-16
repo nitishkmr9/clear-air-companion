@@ -4,7 +4,10 @@ import { useMemo } from "react";
 
 import heroImg from "@/assets/hero-family.jpg";
 import { AirError, AirLoading, AqiRing, HourlyStrip, LevelPill } from "@/components/app/aqi-ui";
+import { AlertsCard } from "@/components/app/alerts";
 import { LocationPicker } from "@/components/app/LocationPicker";
+import { SavedPlaces } from "@/components/app/places";
+import { ShareAir } from "@/components/app/share";
 import { Button } from "@/components/ui/button";
 import {
   aqiInfo,
@@ -146,6 +149,12 @@ function DashboardBody({ data }: { data: AirSnapshot }) {
           <Chip icon={<Droplets className="size-4" />}>{c.humidity}% humidity</Chip>
           <Chip icon={<Wind className="size-4" />}>{c.wind} km/h wind</Chip>
         </div>
+        <div className="mt-5 border-t border-border pt-5">
+          <p className="mb-2 text-xs font-semibold text-muted-foreground">
+            Let family and neighbours know
+          </p>
+          <ShareAir data={data} />
+        </div>
       </section>
 
       {/* Best windows */}
@@ -197,6 +206,9 @@ function DashboardBody({ data }: { data: AirSnapshot }) {
         </div>
         <HourlyStrip hours={next24} highlight={highlight} />
       </section>
+
+      <SavedPlaces />
+      <AlertsCard />
 
       {/* Family */}
       <section className="surface animate-rise p-6 md:col-span-2 [animation-delay:200ms]">

@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 
+import { ALERT_COOLDOWN_MS, shouldNotify } from "@/lib/alerts";
+import { diaryInsight } from "@/lib/diary";
 import { findWindows, type HourPoint } from "@/lib/aqi";
 import { safeThreshold } from "@/lib/family";
+import type { DiaryEntry } from "@/lib/store";
 import { cleanAirScore, currentStreak, doseAvoidedUg, tripSavings } from "@/lib/impact";
 
 const h = (hour: number, aqi: number): HourPoint => ({
@@ -62,5 +65,50 @@ describe("outdoor windows", () => {
   it("children are comfortable up to AQI 100; vigorous exercise caps runners at 50", () => {
     expect(safeThreshold("child", "light")).toBe(100);
     expect(safeThreshold("runner", "vigorous")).toBe(50);
+  });
+});
+
+describe("clean-air alerts", () => {
+  const base = { threshold: 100, lastNotifiedAt: undefined, now: 1_000_000_000 };
+  it("alerts when AQI drops from above the threshold to at/below it", () => {
+    expect(shouldNotify({ ...base, prevAqi: 140, aqi: 95 })).toBe(true);
+    expect(shouldNotify({ ...base, prevAqi: 140, aqi: 100 })).toBe(true);
+  });
+  it("does not alert when air was already clean, is still smoggy, or there is no previous reading", () => {
+    expect(shouldNotify({ ...base, prevAqi: 80, aqi: 70 })).toBe(false);
+    expect(shouldNotify({ ...base, prevAqi: 180, aqi: 150 })).toBe(false);
+    expect(shouldNotify({ ...base, prevAqi: undefined, aqi: 50 })).toBe(false);
+  });
+  it("waits 3 hours between alerts", () => {
+    const now = base.now;
+    expect(
+      shouldNotify({ ...base, prevAqi: 140, aqi: 90, lastNotifiedAt: now - ALERT_COOLDOWN_MS + 1 }),
+    ).toBe(false);
+    expect(
+      shouldNotify({ ...base, prevAqi: 140, aqi: 90, lastNotifiedAt: now - ALERT_COOLDOWN_MS }),
+    ).toBe(true);
+  });
+});
+
+describe("health diary insight", () => {
+  const entry = (date: string, aqi: number, severity: 1 | 2 | 3, n = 1): DiaryEntry => ({
+    id: `${date}-${aqi}`,
+    at: 0,
+    date,
+    who: "Me",
+    symptoms: Array.from({ length: n }, () => "cough" as const),
+    severity,
+    aqi,
+  });
+  it("needs at least one smoggy (AQI > 150) and one cleaner day", () => {
+    expect(diaryInsight([entry("2026-11-10", 200, 2)])).toBeNull();
+  });
+  it("averages symptom load (severity × symptoms) per day on each side", () => {
+    const r = diaryInsight([
+      entry("2026-11-10", 200, 3, 2), // load 6
+      entry("2026-11-11", 180, 2), // load 2
+      entry("2026-11-12", 90, 1), // load 1
+    ]);
+    expect(r).toEqual({ smoggyAvg: 4, cleanAvg: 1, smoggyDays: 2, cleanDays: 1 });
   });
 });

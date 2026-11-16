@@ -105,3 +105,36 @@ export const tripStore = createStore<Trip[]>("be.trips", [
   { id: "t-school", label: "School drop-off", km: 6, mode: "carpool", riders: 3 },
   { id: "t-work", label: "Office commute", km: 12, mode: "metro", riders: 1 },
 ]);
+
+export interface SavedPlace extends Place {
+  id: string;
+  label: string; // "Home", "School"…
+}
+export const savedPlacesStore = createStore<SavedPlace[]>("be.places", []);
+
+export interface AlertSettings {
+  enabled: boolean;
+  threshold: number;
+  lastAqi?: number | undefined;
+  lastNotifiedAt?: number | undefined;
+}
+export const alertsStore = createStore<AlertSettings>("be.alerts", {
+  enabled: false,
+  threshold: 100,
+});
+
+export type Symptom =
+  "cough" | "wheeze" | "breathless" | "sore-throat" | "itchy-eyes" | "headache" | "tired";
+export interface DiaryEntry {
+  id: string;
+  at: number; // epoch ms
+  date: string; // YYYY-MM-DD local
+  who: string; // member name or "Me"
+  symptoms: Symptom[];
+  severity: 1 | 2 | 3;
+  note?: string | undefined;
+  aqi?: number | undefined;
+  pm25?: number | undefined;
+  place?: string | undefined;
+}
+export const diaryStore = createStore<DiaryEntry[]>("be.diary", []);

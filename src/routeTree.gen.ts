@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AssistantRouteImport } from './routes/assistant'
+import { Route as DiaryRouteImport } from './routes/diary'
 import { Route as FamilyRouteImport } from './routes/family'
 import { Route as ImpactRouteImport } from './routes/impact'
 import { Route as IndoorRouteImport } from './routes/indoor'
@@ -27,6 +28,11 @@ const IndexRoute = IndexRouteImport.update({
 const AssistantRoute = AssistantRouteImport.update({
   id: '/assistant',
   path: '/assistant',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DiaryRoute = DiaryRouteImport.update({
+  id: '/diary',
+  path: '/diary',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FamilyRoute = FamilyRouteImport.update({
@@ -68,6 +74,7 @@ const AssistantThreadIdRoute = AssistantThreadIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/assistant': typeof AssistantRouteWithChildren
+  '/diary': typeof DiaryRoute
   '/family': typeof FamilyRoute
   '/impact': typeof ImpactRoute
   '/indoor': typeof IndoorRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/diary': typeof DiaryRoute
   '/family': typeof FamilyRoute
   '/impact': typeof ImpactRoute
   '/indoor': typeof IndoorRoute
@@ -90,6 +98,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/assistant': typeof AssistantRouteWithChildren
+  '/diary': typeof DiaryRoute
   '/family': typeof FamilyRoute
   '/impact': typeof ImpactRoute
   '/indoor': typeof IndoorRoute
@@ -103,6 +112,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/assistant'
+    | '/diary'
     | '/family'
     | '/impact'
     | '/indoor'
@@ -113,6 +123,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/diary'
     | '/family'
     | '/impact'
     | '/indoor'
@@ -124,6 +135,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/assistant'
+    | '/diary'
     | '/family'
     | '/impact'
     | '/indoor'
@@ -136,6 +148,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AssistantRoute: typeof AssistantRouteWithChildren
+  DiaryRoute: typeof DiaryRoute
   FamilyRoute: typeof FamilyRoute
   ImpactRoute: typeof ImpactRoute
   IndoorRoute: typeof IndoorRoute
@@ -157,6 +170,13 @@ declare module '@tanstack/react-router' {
       path: '/assistant'
       fullPath: '/assistant'
       preLoaderRoute: typeof AssistantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/diary': {
+      id: '/diary'
+      path: '/diary'
+      fullPath: '/diary'
+      preLoaderRoute: typeof DiaryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/family': {
@@ -228,6 +248,7 @@ const AssistantRouteWithChildren = AssistantRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AssistantRoute: AssistantRouteWithChildren,
+  DiaryRoute: DiaryRoute,
   FamilyRoute: FamilyRoute,
   ImpactRoute: ImpactRoute,
   IndoorRoute: IndoorRoute,
