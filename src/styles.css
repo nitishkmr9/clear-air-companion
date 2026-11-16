@@ -89,16 +89,34 @@
   --animate-rise: rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 
   @keyframes breathe {
-    0%, 100% { transform: scale(1); opacity: 0.9; }
-    50% { transform: scale(1.05); opacity: 1; }
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 0.9;
+    }
+    50% {
+      transform: scale(1.05);
+      opacity: 1;
+    }
   }
   @keyframes drift {
-    0%, 100% { transform: translate3d(0, 0, 0); }
-    50% { transform: translate3d(3%, -4%, 0); }
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+    50% {
+      transform: translate3d(3%, -4%, 0);
+    }
   }
   @keyframes rise {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
 
@@ -159,14 +177,27 @@
   --sidebar-border: oklch(0.9 0.016 95);
   --sidebar-ring: oklch(0.6 0.07 155);
 
-  --gradient-haze: radial-gradient(120% 80% at 10% 0%, oklch(0.95 0.04 70 / 0.9), transparent 60%),
+  --gradient-haze:
+    radial-gradient(120% 80% at 10% 0%, oklch(0.95 0.04 70 / 0.9), transparent 60%),
     radial-gradient(90% 70% at 100% 10%, oklch(0.93 0.04 150 / 0.8), transparent 55%),
     linear-gradient(180deg, oklch(0.975 0.012 85), oklch(0.965 0.016 90));
   --gradient-primary: linear-gradient(135deg, oklch(0.47 0.07 155), oklch(0.56 0.08 140));
-  --gradient-hero-fade: linear-gradient(90deg, oklch(0.975 0.012 85 / 0.96) 0%, oklch(0.975 0.012 85 / 0.75) 45%, oklch(0.975 0.012 85 / 0) 80%);
-  --gradient-hero-fade-mobile: linear-gradient(180deg, oklch(0.975 0.012 85 / 0.2) 0%, oklch(0.975 0.012 85 / 0.85) 55%, oklch(0.975 0.012 85) 100%);
-  --shadow-soft-value: 0 1px 2px oklch(0.3 0.03 150 / 0.04), 0 8px 24px -12px oklch(0.3 0.03 150 / 0.14);
-  --shadow-lift-value: 0 2px 4px oklch(0.3 0.03 150 / 0.05), 0 20px 40px -18px oklch(0.3 0.05 150 / 0.28);
+  --gradient-hero-fade: linear-gradient(
+    90deg,
+    oklch(0.975 0.012 85 / 0.96) 0%,
+    oklch(0.975 0.012 85 / 0.75) 45%,
+    oklch(0.975 0.012 85 / 0) 80%
+  );
+  --gradient-hero-fade-mobile: linear-gradient(
+    180deg,
+    oklch(0.975 0.012 85 / 0.2) 0%,
+    oklch(0.975 0.012 85 / 0.85) 55%,
+    oklch(0.975 0.012 85) 100%
+  );
+  --shadow-soft-value:
+    0 1px 2px oklch(0.3 0.03 150 / 0.04), 0 8px 24px -12px oklch(0.3 0.03 150 / 0.14);
+  --shadow-lift-value:
+    0 2px 4px oklch(0.3 0.03 150 / 0.05), 0 20px 40px -18px oklch(0.3 0.05 150 / 0.28);
 }
 
 @layer base {
@@ -183,7 +214,9 @@
     font-family: var(--font-sans);
     min-height: 100vh;
   }
-  h1, h2, h3 {
+  h1,
+  h2,
+  h3 {
     letter-spacing: -0.01em;
   }
 }

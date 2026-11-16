@@ -6,15 +6,15 @@ Live app: https://family-airwise-companion.lovable.app
 
 ## Features
 
-| Page | What it does |
-| --- | --- |
-| **Today** (`/`) | Live US AQI, PM2.5, PM10, NO₂, O₃ and weather; colour-coded health level; 36-hour forecast; best "go outside" windows; saved places (Home, School, Office…) compared side by side; share today's air on WhatsApp; clean-air alerts. |
-| **Family** (`/family`) | Members (child, elder, runner, asthma, adult) with routines. Each gets a comfort AQI threshold based on who they are and how hard the activity is. |
-| **Assistant** (`/assistant`) | AI chat grounded in live air data and your family's routines, with multiple saved conversations. Always quantifies the impact of each suggestion. |
-| **Planner** (`/planner`) | Moves flexible routines to cleaner hours, compares car / carpool / metro / bus / cycle / walk, and gives the day a 0–100 clean-air score. |
-| **Indoor** (`/indoor`) | Ventilation timing from the forecast, humidity tips, DIY purifier guide and a daily habit checklist. |
-| **Impact** (`/impact`) | CO₂ avoided, ₹ saved and fine dust not breathed in, with 14-day charts and a streak. |
-| **Diary** (`/diary`) | Log symptoms next to the AQI at the time and see how smoggy days compare with cleaner ones. |
+| Page                         | What it does                                                                                                                                                                                                                        |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Today** (`/`)              | Live US AQI, PM2.5, PM10, NO₂, O₃ and weather; colour-coded health level; 36-hour forecast; best "go outside" windows; saved places (Home, School, Office…) compared side by side; share today's air on WhatsApp; clean-air alerts. |
+| **Family** (`/family`)       | Members (child, elder, runner, asthma, adult) with routines. Each gets a comfort AQI threshold based on who they are and how hard the activity is.                                                                                  |
+| **Assistant** (`/assistant`) | AI chat grounded in live air data and your family's routines, with multiple saved conversations. Always quantifies the impact of each suggestion.                                                                                   |
+| **Planner** (`/planner`)     | Moves flexible routines to cleaner hours, compares car / carpool / metro / bus / cycle / walk, and gives the day a 0–100 clean-air score.                                                                                           |
+| **Indoor** (`/indoor`)       | Ventilation timing from the forecast, humidity tips, DIY purifier guide and a daily habit checklist.                                                                                                                                |
+| **Impact** (`/impact`)       | CO₂ avoided, ₹ saved and fine dust not breathed in, with 14-day charts and a streak.                                                                                                                                                |
+| **Diary** (`/diary`)         | Log symptoms next to the AQI at the time and see how smoggy days compare with cleaner ones.                                                                                                                                         |
 
 Everything is free: air data comes from [Open-Meteo](https://open-meteo.com) (no key), and all personal data stays in the browser (no sign-in, nothing stored on a server).
 
@@ -54,20 +54,20 @@ bun run check           # lint + type check + tests with coverage (what CI runs)
 
 Tests live in `src/test/`, one file per module:
 
-| File | Covers |
-| --- | --- |
-| `aqi.test.ts` | AQI band boundaries, time labels, best-window search (min length, limits, fallback, midnight/month rollover), Open-Meteo parsing with a mocked API, place search |
-| `impact.test.ts` | CO₂ and ₹ per mode, savings, dose, clean-air score, streaks across months |
-| `family.test.ts` | Comfort threshold for every member type and intensity |
-| `planner.test.ts` | Moving flexible routines, keeping fixed ones, dust avoided, ordering |
-| `alerts.test.ts` | Alert only when air turns clean, 3-hour cooldown |
-| `diary.test.ts` | Smoggy vs cleaner day averages |
-| `store.test.ts` | Saving/reloading, corrupted data, cross-tab sync |
-| `threads.test.ts` | Creating, titling, queuing and deleting chat threads |
-| `share.test.ts` | Share message and WhatsApp link |
-| `chat.server.test.ts` | Chat input validation, error responses, grounded instructions |
-| `components.test.tsx` | AQI display, share buttons, alerts card and background alert watcher |
-| `app-routing.test.tsx` | Every page URL resolves to its page |
+| File                   | Covers                                                                                                                                                           |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `aqi.test.ts`          | AQI band boundaries, time labels, best-window search (min length, limits, fallback, midnight/month rollover), Open-Meteo parsing with a mocked API, place search |
+| `impact.test.ts`       | CO₂ and ₹ per mode, savings, dose, clean-air score, streaks across months                                                                                        |
+| `family.test.ts`       | Comfort threshold for every member type and intensity                                                                                                            |
+| `planner.test.ts`      | Moving flexible routines, keeping fixed ones, dust avoided, ordering                                                                                             |
+| `alerts.test.ts`       | Alert only when air turns clean, 3-hour cooldown                                                                                                                 |
+| `diary.test.ts`        | Smoggy vs cleaner day averages                                                                                                                                   |
+| `store.test.ts`        | Saving/reloading, corrupted data, cross-tab sync                                                                                                                 |
+| `threads.test.ts`      | Creating, titling, queuing and deleting chat threads                                                                                                             |
+| `share.test.ts`        | Share message and WhatsApp link                                                                                                                                  |
+| `chat.server.test.ts`  | Chat input validation, error responses, grounded instructions                                                                                                    |
+| `components.test.tsx`  | AQI display, share buttons, alerts card and background alert watcher                                                                                             |
+| `app-routing.test.tsx` | Every page URL resolves to its page                                                                                                                              |
 
 CI (`.github/workflows/ci.yml`) runs lint, type check and tests with coverage on every push and pull request.
 
