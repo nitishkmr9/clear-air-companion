@@ -215,6 +215,11 @@ export function hourLabel(localIso: string) {
   return `${h12} ${suffix}`;
 }
 
+/** Hour of day 0–23 -> "6 PM" */
+export function clockLabel(hour: number) {
+  return hourLabel(`2000-01-01T${String(hour).padStart(2, "0")}:00`);
+}
+
 export function dayLabel(localIso: string, todayIso: string) {
   return localIso.slice(0, 10) === todayIso.slice(0, 10) ? "Today" : "Tomorrow";
 }

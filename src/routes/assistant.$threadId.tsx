@@ -135,7 +135,7 @@ function ChatWindow({ thread }: { thread: Thread }) {
         <div className="flex min-w-0 items-center gap-3">
           <img src={logo} alt="" width={36} height={36} className="size-9" />
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-foreground">{thread.title}</p>
+            <h1 className="truncate text-sm font-semibold text-foreground">{thread.title}</h1>
             <p className="truncate text-xs text-muted-foreground">
               Using live air for {place.name}
             </p>

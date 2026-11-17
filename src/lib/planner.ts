@@ -1,6 +1,6 @@
 import { findWindows, type HourPoint, type Window } from "./aqi";
 import { BREATHING_LPM, safeThreshold, type Member, type Routine } from "./family";
-import { doseAvoidedUg, MODE_META, tripSavings } from "./impact";
+import { cleanAirScore, doseAvoidedUg, MODE_META, tripSavings } from "./impact";
 import type { ImpactEntry, Trip } from "./store";
 
 export interface PlannedRoutine {
@@ -109,4 +109,31 @@ export function planImpactEntries(
 export function mergeImpactEntries(existing: ImpactEntry[], next: ImpactEntry[]) {
   const ids = new Set(next.map((e) => e.id));
   return [...existing.filter((e) => !ids.has(e.id)), ...next];
+}
+
+/**
+ * Headline numbers for the planner: clean-air score from the slots the family keeps
+ * (falls back to the current AQI with no routines), plus CO₂, ₹ and dust saved.
+ */
+export function planSummary(
+  plan: PlannedRoutine[],
+  trips: Trip[],
+  declined: Set<string>,
+  currentAqi: number,
+) {
+  const accepted = (p: PlannedRoutine) => p.improves && !declined.has(p.routine.id);
+  const slotAqis = plan.map((p) => (accepted(p) ? p.chosenAqi : (p.original?.aqi ?? p.chosenAqi)));
+  const score = cleanAirScore(
+    slotAqis.length ? slotAqis : [currentAqi],
+    trips.map((t) => t.mode),
+  );
+  let co2Kg = 0;
+  let money = 0;
+  for (const t of trips) {
+    const s = tripSavings(t.mode, t.km, t.riders);
+    co2Kg += s.co2Kg;
+    money += s.money;
+  }
+  const doseUg = plan.filter(accepted).reduce((sum, p) => sum + p.doseUg, 0);
+  return { score, co2Kg, money, doseUg };
 }

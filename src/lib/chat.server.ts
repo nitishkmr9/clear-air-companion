@@ -8,25 +8,50 @@ import { createResponsesCall } from "./ai/responses.ts";
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1";
 const MODEL = "openai/gpt-6-astra";
 
+/** Largest chat request we accept (bytes); a long conversation is well under this. */
+export const MAX_BODY_BYTES = 256 * 1024;
+/** Longest single text part (characters) — stops pasted walls of text running up AI cost. */
+export const MAX_TEXT_CHARS = 4000;
+
+// Only the parts the client actually sends are checked strictly; other part types
+// (reasoning, step markers) pass through untouched but must still carry a `type`.
+const partSchema = z.union([
+  z.object({ type: z.literal("text"), text: z.string().max(MAX_TEXT_CHARS) }).loose(),
+  z.object({ type: z.string().regex(/^(?!text$)[a-z0-9-]+$/) }).loose(),
+]);
+
+const messageSchema = z
+  .object({
+    id: z.string().max(200),
+    // "system" is never accepted from the browser: instructions are built on the server only.
+    role: z.enum(["user", "assistant"]),
+    parts: z.array(partSchema).max(100),
+  })
+  .loose();
+
 export const bodySchema = z.object({
   threadId: z.string().min(1).max(100),
-  messages: z.array(z.any()).min(1).max(200),
-  place: z.object({ name: z.string().max(200), lat: z.number(), lon: z.number() }),
+  messages: z.array(messageSchema).min(1).max(200),
+  place: z.object({
+    name: z.string().max(200),
+    lat: z.number().min(-90).max(90),
+    lon: z.number().min(-180).max(180),
+  }),
   family: z
     .array(
       z.object({
-        id: z.string(),
+        id: z.string().max(100),
         name: z.string().max(80),
         kind: z.enum(["child", "elderly", "runner", "adult", "asthma"]),
-        age: z.number().optional(),
+        age: z.number().int().min(0).max(120).optional(),
         notes: z.string().max(500).optional(),
         routines: z
           .array(
             z.object({
-              id: z.string(),
+              id: z.string().max(100),
               label: z.string().max(80),
-              hour: z.number(),
-              minutes: z.number(),
+              hour: z.number().int().min(0).max(23),
+              minutes: z.number().int().min(1).max(600),
               intensity: z.enum(["light", "moderate", "vigorous"]),
               flexible: z.boolean(),
             }),
@@ -115,9 +140,15 @@ export async function handleChat(request: Request) {
   const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) return json(500, "AI is not configured for this app yet.");
 
+  const declared = Number(request.headers.get("content-length") ?? 0);
+  if (declared > MAX_BODY_BYTES) return json(413, "That conversation is too long. Please start a new one.");
+
   let body: z.infer<typeof bodySchema>;
   try {
-    body = bodySchema.parse(await request.json());
+    const raw = await request.text();
+    if (raw.length > MAX_BODY_BYTES)
+      return json(413, "That conversation is too long. Please start a new one.");
+    body = bodySchema.parse(JSON.parse(raw));
   } catch {
     return json(400, "That message couldn't be read. Please try again.");
   }
@@ -129,13 +160,14 @@ export async function handleChat(request: Request) {
     return json(503, "I couldn't reach the live air quality service. Please try again shortly.");
   }
 
+  // Shape checked above; the AI SDK's own converter validates the part details.
   const messages = body.messages as UIMessage[];
   const modelMessages = await convertToModelMessages(messages);
   const call = createResponsesCall(
     request,
     { baseURL: GATEWAY_URL, apiKey, model: MODEL },
     modelMessages,
-    buildInstructions(snapshot, body.family as Member[]),
+    buildInstructions(snapshot, body.family),
   );
   return call.response(messages, (error) => {
     console.error("chat error", error);

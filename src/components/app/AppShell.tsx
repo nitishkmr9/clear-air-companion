@@ -22,17 +22,24 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen pb-24 md:pb-0">
+      <a
+        href="#main"
+        className="sr-only z-50 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground focus:not-sr-only focus:fixed focus:left-4 focus:top-3"
+      >
+        Skip to content
+      </a>
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/75 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6">
-          <Link to="/" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2" aria-label="BreatheEasy home">
             <img src={logo} alt="" width={36} height={36} className="size-9" />
             <span className="font-display text-2xl text-foreground">BreatheEasy</span>
           </Link>
-          <nav className="hidden items-center gap-1 md:flex">
+          <nav aria-label="Main" className="hidden items-center gap-1 md:flex">
             {NAV.map((n) => (
               <Link
                 key={n.to}
                 to={n.to}
+                aria-current={isActive(n.to) ? "page" : undefined}
                 className={cn(
                   "rounded-full px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
                   isActive(n.to) && "bg-primary-soft text-secondary-foreground",
@@ -46,9 +53,11 @@ export function AppShell({ children }: { children: ReactNode }) {
       </header>
 
       <AlertWatcher />
-      <main>{children}</main>
+      <main id="main" tabIndex={-1} className="focus:outline-none">
+        {children}
+      </main>
 
-      <nav className="fixed inset-x-3 bottom-3 z-40 rounded-3xl border border-border bg-card/90 px-1 py-1.5 shadow-lift backdrop-blur-xl md:hidden">
+      <nav aria-label="Main (mobile)" className="fixed inset-x-3 bottom-3 z-40 rounded-3xl border border-border bg-card/90 px-1 py-1.5 shadow-lift backdrop-blur-xl md:hidden">
         <ul className="grid grid-cols-7">
           {NAV.map((n) => {
             const Icon = n.icon;
@@ -57,12 +66,13 @@ export function AppShell({ children }: { children: ReactNode }) {
               <li key={n.to}>
                 <Link
                   to={n.to}
+                  aria-current={active ? "page" : undefined}
                   className={cn(
                     "flex flex-col items-center gap-0.5 rounded-2xl py-1.5 text-[0.62rem] font-medium text-muted-foreground",
                     active && "bg-primary-soft text-secondary-foreground",
                   )}
                 >
-                  <Icon className="size-5" strokeWidth={active ? 2.2 : 1.8} />
+                  <Icon aria-hidden="true" className="size-5" strokeWidth={active ? 2.2 : 1.8} />
                   {n.label}
                 </Link>
               </li>

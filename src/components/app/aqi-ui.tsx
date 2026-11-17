@@ -63,16 +63,27 @@ export function LevelPill({ aqi, className }: { aqi: number; className?: string 
 export function HourlyStrip({ hours, highlight }: { hours: HourPoint[]; highlight?: Set<string> }) {
   const max = Math.max(150, ...hours.map((h) => h.aqi));
   return (
-    <div className="no-scrollbar -mx-1 overflow-x-auto px-1">
-      <div className="flex min-w-max items-end gap-1.5 pb-1">
+    <div
+      className="no-scrollbar -mx-1 overflow-x-auto rounded-xl px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      role="region"
+      aria-label="Hourly air quality forecast — scroll for later hours"
+      tabIndex={0}
+    >
+      <ul className="flex min-w-max items-end gap-1.5 pb-1">
         {hours.map((h, i) => {
           const info = aqiInfo(h.aqi);
           const cls = LEVEL_CLASSES[info.level];
           const isHi = highlight?.has(h.time);
           return (
-            <div key={h.time} className="flex w-9 flex-col items-center gap-1.5">
-              <span className="text-[0.65rem] font-semibold text-muted-foreground">{h.aqi}</span>
-              <div className="flex h-28 w-full items-end">
+            <li key={h.time} className="flex w-9 flex-col items-center gap-1.5">
+              <span className="sr-only">
+                {i === 0 ? "Now" : hourLabel(h.time)}: AQI {h.aqi}, {info.label}
+                {isHi ? ", one of the best windows" : ""}
+              </span>
+              <span aria-hidden="true" className="text-[0.65rem] font-semibold text-muted-foreground">
+                {h.aqi}
+              </span>
+              <div aria-hidden="true" className="flex h-28 w-full items-end">
                 <div
                   className={cn(
                     "w-full rounded-lg transition-all",
@@ -86,6 +97,7 @@ export function HourlyStrip({ hours, highlight }: { hours: HourPoint[]; highligh
                 />
               </div>
               <span
+                aria-hidden="true"
                 className={cn(
                   "text-[0.62rem] text-muted-foreground",
                   i === 0 && "font-bold text-foreground",
@@ -93,10 +105,10 @@ export function HourlyStrip({ hours, highlight }: { hours: HourPoint[]; highligh
               >
                 {i === 0 ? "Now" : hourLabel(h.time).replace(" ", "")}
               </span>
-            </div>
+            </li>
           );
         })}
-      </div>
+      </ul>
     </div>
   );
 }
