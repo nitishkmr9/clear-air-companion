@@ -66,7 +66,6 @@ const SEVERITY = [
   { v: 3 as const, label: "Strong" },
 ];
 
-
 function DiaryPage() {
   const entries = diaryStore.use();
   const family = familyStore.use();

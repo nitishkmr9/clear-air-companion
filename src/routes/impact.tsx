@@ -30,7 +30,6 @@ export const Route = createFileRoute("/impact")({
   component: ImpactPage,
 });
 
-
 function ImpactPage() {
   const entries = impactStore.use();
   const hydrated = useHydrated();

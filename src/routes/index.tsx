@@ -45,7 +45,6 @@ export const Route = createFileRoute("/")({
   component: Dashboard,
 });
 
-
 function Dashboard() {
   const { data, isPending, isError, refetch } = useAir();
 

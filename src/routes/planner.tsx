@@ -19,14 +19,7 @@ import { aqiInfo, hourLabel, LEVEL_CLASSES, windowLabel, type AirSnapshot } from
 import { KIND_META, newId } from "@/lib/family";
 import { cleanAirScore, MODE_META, tripSavings, type TransportMode } from "@/lib/impact";
 import { mergeImpactEntries, planImpactEntries, planRoutines } from "@/lib/planner";
-import {
-  familyStore,
-  impactStore,
-  todayKey,
-  tripStore,
-  useAir,
-  type ImpactEntry,
-} from "@/lib/store";
+import { familyStore, impactStore, todayKey, tripStore, useAir } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/planner")({

@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import type { Member } from "@/lib/family";
-import { planRoutines } from "@/lib/planner";
+import { mergeImpactEntries, planImpactEntries, planRoutines } from "@/lib/planner";
+import type { Trip } from "@/lib/store";
 
 import { hour } from "./fixtures";
 
@@ -67,5 +68,48 @@ describe("routine planner", () => {
 
   it("returns nothing for a family without routines", () => {
     expect(planRoutines([], day)).toEqual([]);
+  });
+});
+
+describe("saving today's plan to the impact tracker", () => {
+  const trips: Trip[] = [
+    { id: "school", label: "School drop-off", km: 6, mode: "carpool", riders: 3 },
+    { id: "work", label: "Office commute", km: 10, mode: "metro", riders: 1 },
+    { id: "shop", label: "Groceries", km: 4, mode: "car", riders: 1 },
+  ];
+
+  it("logs accepted time shifts and every trip not by solo car", () => {
+    const plan = planRoutines([child(true)], day);
+    const entries = planImpactEntries(plan, trips, new Set(), "2026-11-16");
+    expect(entries.map((e) => e.id)).toEqual([
+      "2026-11-16-shift-play",
+      "2026-11-16-trip-school",
+      "2026-11-16-trip-work",
+    ]);
+    expect(entries[0]).toMatchObject({
+      kind: "shift",
+      doseUg: 58,
+      label: "Aarav: Park play moved to cleaner air",
+    });
+    expect(entries[2]).toMatchObject({
+      kind: "trip",
+      co2Kg: 1.4,
+      money: 55,
+      label: "Office commute by metro",
+    });
+  });
+
+  it("skips shifts the family declined", () => {
+    const plan = planRoutines([child(true)], day);
+    const entries = planImpactEntries(plan, [], new Set(["play"]), "2026-11-16");
+    expect(entries).toEqual([]);
+  });
+
+  it("saving again the same day replaces entries instead of doubling savings", () => {
+    const first = planImpactEntries([], trips, new Set(), "2026-11-16");
+    const merged = mergeImpactEntries(mergeImpactEntries([], first), first);
+    expect(merged).toHaveLength(2);
+    const yesterday = planImpactEntries([], trips, new Set(), "2026-11-15");
+    expect(mergeImpactEntries(yesterday, first)).toHaveLength(4);
   });
 });
