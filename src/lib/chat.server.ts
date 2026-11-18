@@ -1,7 +1,7 @@
 import { convertToModelMessages, type UIMessage } from "ai";
 import { z } from "zod";
 
-import { aqiInfo, fetchAirSnapshot, findWindows, hourLabel, windowLabel } from "./aqi";
+import { aqiInfo, clockLabel, fetchAirSnapshot, findWindows, hourLabel, windowLabel } from "./aqi";
 import { KIND_META, safeThreshold, type Member } from "./family";
 import { createResponsesCall } from "./ai/responses.ts";
 
@@ -109,7 +109,7 @@ export function buildInstructions(
                     Math.max(1, Math.ceil(r.minutes / 60)),
                     2,
                   );
-                  return `  - ${r.label} (usually ${hourLabel(`2000-01-01T${String(r.hour).padStart(2, "0")}:00`)}, ${r.minutes} min, ${r.intensity}${r.flexible ? ", flexible" : ", fixed time"}). Comfort threshold AQI ≤ ${thr}. ${w.relaxed ? "No hour meets it; cleanest" : "Clean"} windows: ${w.windows.map((x) => `${windowLabel(x, now)} (avg AQI ${x.avgAqi})`).join("; ")}`;
+                  return `  - ${r.label} (usually ${clockLabel(r.hour)}, ${r.minutes} min, ${r.intensity}${r.flexible ? ", flexible" : ", fixed time"}). Comfort threshold AQI ≤ ${thr}. ${w.relaxed ? "No hour meets it; cleanest" : "Clean"} windows: ${w.windows.map((x) => `${windowLabel(x, now)} (avg AQI ${x.avgAqi})`).join("; ")}`;
                 })
                 .join("\n")
             : "  - no routines added";
@@ -141,7 +141,8 @@ export async function handleChat(request: Request) {
   if (!apiKey) return json(500, "AI is not configured for this app yet.");
 
   const declared = Number(request.headers.get("content-length") ?? 0);
-  if (declared > MAX_BODY_BYTES) return json(413, "That conversation is too long. Please start a new one.");
+  if (declared > MAX_BODY_BYTES)
+    return json(413, "That conversation is too long. Please start a new one.");
 
   let body: z.infer<typeof bodySchema>;
   try {

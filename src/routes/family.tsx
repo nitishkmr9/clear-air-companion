@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { hourLabel } from "@/lib/aqi";
+import { clockLabel } from "@/lib/aqi";
 import {
   KIND_META,
   newId,
@@ -66,7 +66,7 @@ const TEMPLATES: Record<MemberKind, Omit<Routine, "id">[]> = {
   adult: [{ label: "Commute", hour: 9, minutes: 40, intensity: "light", flexible: false }],
 };
 
-const hourText = (h: number) => hourLabel(`2000-01-01T${String(h).padStart(2, "0")}:00`);
+const hourText = clockLabel;
 
 function FamilyPage() {
   const family = familyStore.use();

@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   aqiInfo,
   cleanestIndex,
+  clockLabel,
   dayLabel,
   fetchAirSnapshot,
   findWindows,
@@ -40,6 +41,11 @@ describe("time labels", () => {
     expect(hourLabel("2026-11-16T09:00")).toBe("9 AM");
     expect(hourLabel("2026-11-16T12:00")).toBe("12 PM");
     expect(hourLabel("2026-11-16T14:00")).toBe("2 PM");
+  });
+
+  it("formats an hour of day", () => {
+    expect(clockLabel(0)).toBe("12 AM");
+    expect(clockLabel(18)).toBe("6 PM");
   });
 
   it("calls same-date hours Today and later ones Tomorrow", () => {

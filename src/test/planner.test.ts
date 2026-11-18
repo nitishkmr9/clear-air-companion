@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { Member } from "@/lib/family";
-import { mergeImpactEntries, planImpactEntries, planRoutines } from "@/lib/planner";
+import { mergeImpactEntries, planImpactEntries, planRoutines, planSummary } from "@/lib/planner";
 import type { Trip } from "@/lib/store";
 
 import { hour } from "./fixtures";
@@ -111,5 +111,30 @@ describe("saving today's plan to the impact tracker", () => {
     expect(merged).toHaveLength(2);
     const yesterday = planImpactEntries([], trips, new Set(), "2026-11-15");
     expect(mergeImpactEntries(yesterday, first)).toHaveLength(4);
+  });
+});
+
+describe("planner headline numbers", () => {
+  const trips: Trip[] = [
+    { id: "work", label: "Office commute", km: 10, mode: "metro", riders: 1 },
+    { id: "shop", label: "Groceries", km: 4, mode: "car", riders: 1 },
+  ];
+
+  it("scores the cleaner slot the family accepted and adds up trip savings", () => {
+    const plan = planRoutines([child(true)], day);
+    const s = planSummary(plan, trips, new Set(), 180);
+    // slot AQI 60 -> 80 exposure pts × 0.7 = 56; half the trips green -> 15
+    expect(s).toEqual({ score: 71, co2Kg: 1.4, money: 55, doseUg: 58 });
+  });
+
+  it("uses the usual time when the cleaner slot is declined", () => {
+    const plan = planRoutines([child(true)], day);
+    const s = planSummary(plan, trips, new Set(["play"]), 180);
+    // usual AQI 200 -> 33.3 pts × 0.7 = 23.3; + 15 = 38
+    expect(s).toMatchObject({ score: 38, doseUg: 0 });
+  });
+
+  it("falls back to the current AQI when there are no routines", () => {
+    expect(planSummary([], [], new Set(), 150).score).toBe(65);
   });
 });

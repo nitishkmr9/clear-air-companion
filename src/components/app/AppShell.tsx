@@ -57,7 +57,10 @@ export function AppShell({ children }: { children: ReactNode }) {
         {children}
       </main>
 
-      <nav aria-label="Main (mobile)" className="fixed inset-x-3 bottom-3 z-40 rounded-3xl border border-border bg-card/90 px-1 py-1.5 shadow-lift backdrop-blur-xl md:hidden">
+      <nav
+        aria-label="Main (mobile)"
+        className="fixed inset-x-3 bottom-3 z-40 rounded-3xl border border-border bg-card/90 px-1 py-1.5 shadow-lift backdrop-blur-xl md:hidden"
+      >
         <ul className="grid grid-cols-7">
           {NAV.map((n) => {
             const Icon = n.icon;

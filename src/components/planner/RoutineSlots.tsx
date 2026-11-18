@@ -96,7 +96,12 @@ function RoutineRow({
             Impact: about <strong className="text-foreground">{p.pctLess}% less fine dust</strong>{" "}
             breathed ({p.doseUg} µg of PM2.5 avoided).
           </p>
-          <Button size="sm" variant={accepted ? "ghost" : "soft"} className="mt-2" onClick={onToggle}>
+          <Button
+            size="sm"
+            variant={accepted ? "ghost" : "soft"}
+            className="mt-2"
+            onClick={onToggle}
+          >
             {accepted ? "Keep usual time instead" : "Use the cleaner slot"}
           </Button>
         </div>

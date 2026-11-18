@@ -49,7 +49,11 @@ function ScoreRing({ score }: { score: number }) {
   const r = 44;
   const circ = 2 * Math.PI * r;
   return (
-    <div className="relative mt-3 size-44" role="img" aria-label={`Clean air score ${score} out of 100`}>
+    <div
+      className="relative mt-3 size-44"
+      role="img"
+      aria-label={`Clean air score ${score} out of 100`}
+    >
       <svg viewBox="0 0 100 100" className="-rotate-90" aria-hidden="true">
         <circle cx="50" cy="50" r={r} fill="none" strokeWidth="8" className="stroke-muted" />
         <circle
@@ -64,7 +68,10 @@ function ScoreRing({ score }: { score: number }) {
           className="stroke-primary transition-all duration-700"
         />
       </svg>
-      <div aria-hidden="true" className="absolute inset-0 flex flex-col items-center justify-center">
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 flex flex-col items-center justify-center"
+      >
         <span className="font-display text-6xl leading-none">{score}</span>
         <span className="text-xs text-muted-foreground">out of 100</span>
       </div>

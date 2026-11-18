@@ -64,7 +64,7 @@ export function HourlyStrip({ hours, highlight }: { hours: HourPoint[]; highligh
   const max = Math.max(150, ...hours.map((h) => h.aqi));
   return (
     <div
-      className="no-scrollbar -mx-1 overflow-x-auto rounded-xl px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="no-scrollbar relative -mx-1 overflow-x-auto rounded-xl px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       role="region"
       aria-label="Hourly air quality forecast — scroll for later hours"
       tabIndex={0}
@@ -80,7 +80,10 @@ export function HourlyStrip({ hours, highlight }: { hours: HourPoint[]; highligh
                 {i === 0 ? "Now" : hourLabel(h.time)}: AQI {h.aqi}, {info.label}
                 {isHi ? ", one of the best windows" : ""}
               </span>
-              <span aria-hidden="true" className="text-[0.65rem] font-semibold text-muted-foreground">
+              <span
+                aria-hidden="true"
+                className="text-[0.65rem] font-semibold text-muted-foreground"
+              >
                 {h.aqi}
               </span>
               <div aria-hidden="true" className="flex h-28 w-full items-end">

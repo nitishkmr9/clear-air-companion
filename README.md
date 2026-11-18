@@ -47,7 +47,7 @@ Key formulas (all in `src/lib/impact.ts`):
 
 ```sh
 bun install
-bun run test            # 120+ unit, component and route tests (Vitest + Testing Library)
+bun run test            # ~150 unit, component and route tests (Vitest + Testing Library)
 bun run test:coverage   # same, with a coverage report and minimum thresholds
 bun run check           # lint + type check + tests with coverage (what CI runs)
 ```
@@ -71,9 +71,20 @@ Tests live in `src/test/`, one file per module:
 
 CI (`.github/workflows/ci.yml`) runs lint, type check and tests with coverage on every push and pull request.
 
+## Security
+
+- No accounts and no personal data on a server: family, diary and plans stay in the browser.
+- The AI key is only used on the server; the chat endpoint validates every request (size, text length, allowed roles, value ranges) before calling the model.
+- Every response carries security headers (`nosniff`, strict referrer policy, HSTS, a permissions policy that only allows location).
+- Vulnerable sub-dependencies are pinned to fixed versions; the dependency scan reports no known vulnerabilities.
+
 ## Accessibility
 
-Semantic headings and landmarks, labelled icon buttons, `aria-pressed` on toggle chips, visible focus rings, colour-coded levels always paired with a text label, and a responsive layout down to small phones.
+- Automated audit (axe-core, WCAG 2.2 AA + best practices) passes with zero issues on every page, on desktop and a 360 px phone.
+- Skip-to-content link, labelled navigation landmarks with `aria-current`, one main heading per page.
+- The hourly forecast is keyboard-scrollable and read out hour by hour to screen readers; the score ring has a text label.
+- Toggle chips use `aria-pressed`; icon-only buttons have names; colours always come with a text label.
+- Animations switch off when the system asks for reduced motion.
 
 ## Development
 

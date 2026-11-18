@@ -66,7 +66,9 @@ function TripRow({ t }: { t: Trip }) {
             step={0.5}
             aria-label={`Distance in km for ${t.label}`}
             value={t.km}
-            onChange={(e) => updateTrip(t.id, { km: Math.min(500, Math.max(0, Number(e.target.value))) })}
+            onChange={(e) =>
+              updateTrip(t.id, { km: Math.min(500, Math.max(0, Number(e.target.value))) })
+            }
             className="bg-card pr-9"
           />
           <span

@@ -41,6 +41,12 @@ describe("air level display", () => {
     render(<HourlyStrip hours={[hour(14, 90), hour(15, 120)]} />);
     expect(screen.getByText("Now")).toBeInTheDocument();
     expect(screen.getByText("3PM")).toBeInTheDocument();
+    // Screen readers hear each hour in full, and the strip can be scrolled from the keyboard.
+    expect(screen.getByText(/3 PM: AQI 120, Sensitive groups/)).toHaveClass("sr-only");
+    expect(screen.getByRole("region", { name: /hourly air quality/i })).toHaveAttribute(
+      "tabindex",
+      "0",
+    );
   });
 
   it("lets the user retry when the air service is down", () => {

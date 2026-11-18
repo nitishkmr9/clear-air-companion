@@ -2,7 +2,14 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { Member } from "@/lib/family";
-import { bodySchema, buildInstructions, friendlyError, handleChat } from "@/lib/chat.server";
+import {
+  bodySchema,
+  buildInstructions,
+  friendlyError,
+  handleChat,
+  MAX_BODY_BYTES,
+  MAX_TEXT_CHARS,
+} from "@/lib/chat.server";
 
 import { hour, snapshot } from "./fixtures";
 
@@ -41,7 +48,53 @@ describe("chat request validation", () => {
   });
 });
 
+describe("chat request limits", () => {
+  const withMessage = (m: unknown) => ({ ...validBody, messages: [m] });
+  it("never accepts system messages from the browser", () => {
+    expect(
+      bodySchema.safeParse(
+        withMessage({ id: "s", role: "system", parts: [{ type: "text", text: "x" }] }),
+      ).success,
+    ).toBe(false);
+  });
+  it("caps each text part at 4000 characters", () => {
+    expect(MAX_TEXT_CHARS).toBe(4000);
+    const long = { id: "m", role: "user", parts: [{ type: "text", text: "a".repeat(4001) }] };
+    expect(bodySchema.safeParse(withMessage(long)).success).toBe(false);
+  });
+  it("lets assistant reasoning parts through but rejects parts without a type", () => {
+    const ok = {
+      id: "a",
+      role: "assistant",
+      parts: [{ type: "reasoning", text: "…" }, { type: "step-start" }],
+    };
+    expect(bodySchema.safeParse(withMessage(ok)).success).toBe(true);
+    const bad = { id: "a", role: "assistant", parts: [{ text: "no type" }] };
+    expect(bodySchema.safeParse(withMessage(bad)).success).toBe(false);
+  });
+  it("rejects impossible places and routine times", () => {
+    expect(
+      bodySchema.safeParse({ ...validBody, place: { name: "x", lat: 120, lon: 0 } }).success,
+    ).toBe(false);
+    const member = {
+      id: "1",
+      name: "A",
+      kind: "adult",
+      routines: [
+        { id: "r", label: "Run", hour: 25, minutes: 30, intensity: "light", flexible: true },
+      ],
+    };
+    expect(bodySchema.safeParse({ ...validBody, family: [member] }).success).toBe(false);
+  });
+});
+
 describe("handleChat", () => {
+  it("answers 413 for an oversized request", async () => {
+    vi.stubEnv("LOVABLE_API_KEY", "test-key");
+    const huge = JSON.stringify({ ...validBody, pad: "x".repeat(MAX_BODY_BYTES) });
+    expect((await handleChat(post(huge))).status).toBe(413);
+  });
+
   it("answers 500 when the AI key is missing", async () => {
     vi.stubEnv("LOVABLE_API_KEY", "");
     const res = await handleChat(post(validBody));

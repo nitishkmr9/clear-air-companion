@@ -1,4 +1,5 @@
 <!-- LOVABLE:BEGIN -->
+
 > [!IMPORTANT]
 > This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
 > published git history — force pushing, or rebasing/amending/squashing commits
@@ -27,6 +28,7 @@ use the editor.
   `LOVABLE_API_KEY`. When Lovable does not provide one, users can bring their
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
+
 <!-- LOVABLE:END -->
 
 ## Project rules (BreatheEasy)
@@ -39,3 +41,7 @@ use the editor.
 - `bun run check` (lint + typecheck + coverage with thresholds in `vitest.config.ts`) is the quality gate and runs in `.github/workflows/ci.yml`; keep it green.
 - Clean-air alerts run in the open tab only (`AlertWatcher` in the app shell + browser Notification API); there is no push server, to keep the app free. Trigger rule lives in `src/lib/alerts.ts`.
 - Saved places, alert settings and diary entries are localStorage stores in `src/lib/store.ts`; the diary pattern rule is `src/lib/diary.ts`.
+- Page files stay thin: big page sections live in `src/components/<page>/` (e.g. `src/components/planner/`), and their numbers come from `src/lib/*` helpers, so files stay small and rules stay testable.
+- Every server response gets baseline security headers from `src/lib/security-headers.ts` (wired in `src/server.ts`); never add a frame-blocking header, because the editor previews the app in a frame.
+- `/api/chat` is public, so `bodySchema` in `src/lib/chat.server.ts` caps request size, text length, roles (no client "system" messages) and value ranges; keep those limits when changing the chat payload.
+- Vulnerable transitive packages are pinned through `overrides` in `package.json`; re-run the dependency scan after changing dependencies.
