@@ -60,27 +60,41 @@ export function LocationPicker() {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="max-w-full justify-start">
-          <MapPin className="text-primary" />
+        <Button
+          variant="outline"
+          className="max-w-full justify-start"
+          aria-label={`Change location, now showing ${place.name}`}
+        >
+          <MapPin aria-hidden="true" className="text-primary" />
           <span className="truncate">{place.name}</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-80 rounded-2xl p-3">
+      <PopoverContent
+        align="start"
+        className="w-80 rounded-2xl p-3"
+        role="dialog"
+        aria-label="Choose a location"
+      >
         <Button variant="soft" className="w-full" onClick={locate} disabled={locating}>
           {locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}
           Use my current location
         </Button>
         <div className="relative mt-3">
-          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Search aria-hidden="true" className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search a city…"
+            aria-label="Search a city"
+            type="search"
             className="rounded-full pl-9"
             autoFocus
           />
         </div>
-        <ul className="mt-2 max-h-64 overflow-auto">
+        <p className="sr-only" role="status" aria-live="polite">
+          {query.trim().length >= 2 ? `${results.length} places found` : ""}
+        </p>
+        <ul className="mt-2 max-h-64 overflow-auto" aria-label="Matching places">
           {results.map((r) => (
             <li key={`${r.lat},${r.lon}`}>
               <button

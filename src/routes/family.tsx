@@ -13,13 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { NativeSelect } from "@/components/ui/native-select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { clockLabel } from "@/lib/aqi";
@@ -67,6 +61,7 @@ const TEMPLATES: Record<MemberKind, Omit<Routine, "id">[]> = {
 };
 
 const hourText = clockLabel;
+const INTENSITIES: Routine["intensity"][] = ["light", "moderate", "vigorous"];
 
 function FamilyPage() {
   const family = familyStore.use();
@@ -339,51 +334,42 @@ function MemberDialog({
                   </Button>
                 </div>
                 <div className="grid grid-cols-3 gap-2">
-                  <Select
+                  <NativeSelect
+                    aria-label={`Usual time for ${r.label}`}
                     value={String(r.hour)}
-                    onValueChange={(v) => updateRoutine(r.id, { hour: Number(v) })}
+                    onChange={(e) => updateRoutine(r.id, { hour: Number(e.target.value) })}
                   >
-                    <SelectTrigger aria-label="Usual time">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Array.from({ length: 24 }, (_, h) => (
-                        <SelectItem key={h} value={String(h)}>
-                          {hourText(h)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select
+                    {Array.from({ length: 24 }, (_, h) => (
+                      <option key={h} value={String(h)}>
+                        {hourText(h)}
+                      </option>
+                    ))}
+                  </NativeSelect>
+                  <NativeSelect
+                    aria-label={`Duration of ${r.label}`}
                     value={String(r.minutes)}
-                    onValueChange={(v) => updateRoutine(r.id, { minutes: Number(v) })}
+                    onChange={(e) => updateRoutine(r.id, { minutes: Number(e.target.value) })}
                   >
-                    <SelectTrigger aria-label="Duration">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[15, 20, 30, 45, 60, 90, 120].map((n) => (
-                        <SelectItem key={n} value={String(n)}>
-                          {n} min
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select
+                    {[15, 20, 30, 45, 60, 90, 120].map((n) => (
+                      <option key={n} value={String(n)}>
+                        {n} min
+                      </option>
+                    ))}
+                  </NativeSelect>
+                  <NativeSelect
+                    aria-label={`Intensity of ${r.label}`}
                     value={r.intensity}
-                    onValueChange={(v) =>
-                      updateRoutine(r.id, { intensity: v as Routine["intensity"] })
-                    }
+                    onChange={(e) => {
+                      const intensity = INTENSITIES.find((x) => x === e.target.value);
+                      if (intensity) updateRoutine(r.id, { intensity });
+                    }}
                   >
-                    <SelectTrigger aria-label="Intensity">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="light">Light</SelectItem>
-                      <SelectItem value="moderate">Moderate</SelectItem>
-                      <SelectItem value="vigorous">Vigorous</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    {INTENSITIES.map((x) => (
+                      <option key={x} value={x}>
+                        {x[0]!.toUpperCase() + x.slice(1)}
+                      </option>
+                    ))}
+                  </NativeSelect>
                 </div>
                 <label className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Switch

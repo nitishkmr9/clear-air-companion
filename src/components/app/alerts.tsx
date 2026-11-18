@@ -3,13 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { NativeSelect } from "@/components/ui/native-select";
 import { shouldNotify } from "@/lib/alerts";
 import { aqiInfo } from "@/lib/aqi";
 import { alertsStore, useAir } from "@/lib/store";
@@ -94,19 +88,18 @@ export function AlertsCard() {
       </p>
       <label className="mt-4 flex items-center justify-between gap-3 text-sm text-foreground">
         Alert me at AQI
-        <Select
+        <NativeSelect
+          className="w-40"
+          aria-label="Alert threshold"
           value={String(settings.threshold)}
-          onValueChange={(v) => alertsStore.set((prev) => ({ ...prev, threshold: Number(v) }))}
+          onChange={(e) =>
+            alertsStore.set((prev) => ({ ...prev, threshold: Number(e.target.value) }))
+          }
         >
-          <SelectTrigger className="w-40 rounded-full bg-card" aria-label="Alert threshold">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="50">≤ 50 · Good</SelectItem>
-            <SelectItem value="100">≤ 100 · Moderate</SelectItem>
-            <SelectItem value="150">≤ 150 · Sensitive</SelectItem>
-          </SelectContent>
-        </Select>
+          <option value="50">≤ 50 · Good</option>
+          <option value="100">≤ 100 · Moderate</option>
+          <option value="150">≤ 150 · Sensitive</option>
+        </NativeSelect>
       </label>
       {data && (
         <p className="mt-3 rounded-2xl bg-muted/60 px-4 py-3 text-sm text-muted-foreground">
