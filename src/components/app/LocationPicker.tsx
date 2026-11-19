@@ -80,7 +80,10 @@ export function LocationPicker() {
           Use my current location
         </Button>
         <div className="relative mt-3">
-          <Search aria-hidden="true" className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Search
+            aria-hidden="true"
+            className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+          />
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}

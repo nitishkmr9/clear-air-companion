@@ -9,5 +9,5 @@
 - [x] Move rules out of page files (dates, indoor tips, plan → impact) and test them
 - [x] Code quality: remove unused UI parts and packages, split Planner page, shared time helper
 - [x] Security: fixed vulnerable sub-packages, stricter chat limits, security headers
-- [x] Accessibility: zero automated audit issues on every page (desktop + phone)
+- [x] Accessibility: zero automated audit issues on every page, pop-up, dropdown and error screen (desktop + phone)
 - [ ] picomatch advisory — waiting on a fixed release from its maintainers (none published yet)
