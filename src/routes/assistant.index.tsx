@@ -3,7 +3,7 @@ import { MessageSquarePlus } from "lucide-react";
 
 import logo from "@/assets/breatheeasy-logo.png";
 import { LevelPill } from "@/components/app/aqi-ui";
-import { Suggestion, Suggestions } from "@/components/ai-elements/suggestion";
+import { SuggestionChips } from "@/components/chat/SuggestionChips";
 import { Button } from "@/components/ui/button";
 import { useAir } from "@/lib/store";
 import { createThread, STARTER_QUESTIONS } from "@/lib/threads";
@@ -39,11 +39,7 @@ function AssistantHome() {
         </p>
         {data && <LevelPill aqi={data.current.aqi} className="mt-4" />}
       </div>
-      <Suggestions className="max-w-full">
-        {STARTER_QUESTIONS.map((q) => (
-          <Suggestion key={q} suggestion={q} onClick={open} className="rounded-full bg-card" />
-        ))}
-      </Suggestions>
+      <SuggestionChips questions={STARTER_QUESTIONS} onPick={open} className="justify-center" />
       <Button variant="soft" onClick={() => open()}>
         <MessageSquarePlus /> Start a blank conversation
       </Button>

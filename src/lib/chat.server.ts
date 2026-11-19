@@ -4,14 +4,11 @@ import { z } from "zod";
 import { aqiInfo, clockLabel, fetchAirSnapshot, findWindows, hourLabel, windowLabel } from "./aqi";
 import { KIND_META, safeThreshold, type Member } from "./family";
 import { createResponsesCall } from "./ai/responses.ts";
+import { MAX_BODY_BYTES, MAX_TEXT_CHARS } from "./chat-limits";
 
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1";
 const MODEL = "openai/gpt-6-astra";
 
-/** Largest chat request we accept (bytes); a long conversation is well under this. */
-export const MAX_BODY_BYTES = 256 * 1024;
-/** Longest single text part (characters) — stops pasted walls of text running up AI cost. */
-export const MAX_TEXT_CHARS = 4000;
 
 // Only the parts the client actually sends are checked strictly; other part types
 // (reasoning, step markers) pass through untouched but must still carry a `type`.

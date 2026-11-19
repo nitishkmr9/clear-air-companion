@@ -7,9 +7,8 @@ import {
   buildInstructions,
   friendlyError,
   handleChat,
-  MAX_BODY_BYTES,
-  MAX_TEXT_CHARS,
 } from "@/lib/chat.server";
+import { MAX_BODY_BYTES, MAX_TEXT_CHARS } from "@/lib/chat-limits";
 
 import { hour, snapshot } from "./fixtures";
 

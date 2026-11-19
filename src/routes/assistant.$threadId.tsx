@@ -6,22 +6,10 @@ import { toast } from "sonner";
 
 import logo from "@/assets/breatheeasy-logo.png";
 import { LevelPill } from "@/components/app/aqi-ui";
-import {
-  Conversation,
-  ConversationContent,
-  ConversationScrollButton,
-} from "@/components/ai-elements/conversation";
-import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
-import {
-  PromptInput,
-  PromptInputFooter,
-  PromptInputSubmit,
-  PromptInputTextarea,
-  type PromptInputMessage,
-} from "@/components/ai-elements/prompt-input";
-import { Reasoning, ReasoningContent, ReasoningTrigger } from "@/components/ai-elements/reasoning";
-import { Shimmer } from "@/components/ai-elements/shimmer";
-import { Suggestion, Suggestions } from "@/components/ai-elements/suggestion";
+import { ChatComposer } from "@/components/chat/ChatComposer";
+import { ChatLog } from "@/components/chat/ChatLog";
+import { ChatBubble, MessageParts } from "@/components/chat/ChatMessage";
+import { SuggestionChips } from "@/components/chat/SuggestionChips";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { familyStore, placeStore, threadStore, useAir, type Thread } from "@/lib/store";
@@ -80,7 +68,7 @@ function ChatWindow({ thread }: { thread: Thread }) {
   const { data } = useAir();
   const ctx = useRef({ place, family });
   ctx.current = { place, family };
-  const inputWrap = useRef<HTMLDivElement>(null);
+  const input = useRef<HTMLTextAreaElement>(null);
 
   const transport = useMemo(
     () =>
@@ -99,12 +87,12 @@ function ChatWindow({ thread }: { thread: Thread }) {
   });
 
   const busy = status === "submitted" || status === "streaming";
-  const focusInput = () => inputWrap.current?.querySelector("textarea")?.focus();
+  const focusInput = () => input.current?.focus();
 
   // Persist completed turns for this thread.
   useEffect(() => {
     if ((status === "ready" || status === "error") && messages.length > 0) {
-      saveThreadMessages(thread.id, messages as UIMessage[]);
+      saveThreadMessages(thread.id, messages);
     }
   }, [messages, status, thread.id]);
 
@@ -113,7 +101,7 @@ function ChatWindow({ thread }: { thread: Thread }) {
     // Deferred so React StrictMode's mount/unmount/mount cycle sends exactly once.
     const timer = setTimeout(() => {
       const q = takePendingQuestion(thread.id);
-      if (q) sendMessage({ text: q });
+      if (q) void sendMessage({ text: q });
       focusInput();
     }, 0);
     return () => clearTimeout(timer);
@@ -123,11 +111,7 @@ function ChatWindow({ thread }: { thread: Thread }) {
     if (status === "ready") focusInput();
   }, [status]);
 
-  const submit = (msg: PromptInputMessage) => {
-    const text = msg.text?.trim();
-    if (!text || busy) return;
-    sendMessage({ text });
-  };
+  const ask = (text: string) => void sendMessage({ text });
 
   return (
     <div className="surface flex h-[calc(100dvh-13.5rem)] flex-col overflow-hidden md:h-[calc(100vh-7.5rem)]">
@@ -144,78 +128,37 @@ function ChatWindow({ thread }: { thread: Thread }) {
         {data && <LevelPill aqi={data.current.aqi} className="shrink-0" />}
       </div>
 
-      <Conversation className="flex-1">
-        <ConversationContent className="mx-auto w-full max-w-3xl gap-6 px-4 py-6">
-          {messages.length === 0 && (
-            <div className="flex flex-col items-center gap-4 py-10 text-center">
-              <img src={logo} alt="" width={72} height={72} className="size-18 animate-breathe" />
-              <p className="font-display text-3xl">What's on your mind?</p>
-              <Suggestions>
-                {STARTER_QUESTIONS.map((q) => (
-                  <Suggestion
-                    key={q}
-                    suggestion={q}
-                    onClick={(s) => sendMessage({ text: s })}
-                    className="rounded-full bg-card"
-                  />
-                ))}
-              </Suggestions>
-            </div>
-          )}
-          {messages.map((m) => (
-            <Message key={m.id} from={m.role}>
-              {m.role === "assistant" && (
-                <img src={logo} alt="" width={28} height={28} className="size-7" />
-              )}
-              <MessageContent className="text-[0.95rem] leading-relaxed">
-                {m.parts.map((part, i) => {
-                  if (part.type === "text") {
-                    return m.role === "assistant" ? (
-                      <MessageResponse key={i}>{part.text}</MessageResponse>
-                    ) : (
-                      <p key={i} className="whitespace-pre-wrap">
-                        {part.text}
-                      </p>
-                    );
-                  }
-                  if (part.type === "reasoning" && part.text.trim()) {
-                    return (
-                      <Reasoning
-                        key={i}
-                        isStreaming={status === "streaming" && m.id === messages.at(-1)?.id}
-                      >
-                        <ReasoningTrigger />
-                        <ReasoningContent>{part.text}</ReasoningContent>
-                      </Reasoning>
-                    );
-                  }
-                  return null;
-                })}
-              </MessageContent>
-            </Message>
-          ))}
-          {status === "submitted" && (
-            <Message from="assistant">
-              <img src={logo} alt="" width={28} height={28} className="size-7" />
-              <MessageContent>
-                <Shimmer>Checking today's air for your family…</Shimmer>
-              </MessageContent>
-            </Message>
-          )}
-        </ConversationContent>
-        <ConversationScrollButton />
-      </Conversation>
+      <ChatLog>
+        {messages.length === 0 && (
+          <div className="flex flex-col items-center gap-4 py-10 text-center">
+            <img src={logo} alt="" width={72} height={72} className="size-18 animate-breathe" />
+            <p className="font-display text-3xl">What's on your mind?</p>
+            <SuggestionChips
+              questions={STARTER_QUESTIONS}
+              onPick={ask}
+              className="justify-center"
+            />
+          </div>
+        )}
+        {messages.map((m) => (
+          <ChatBubble key={m.id} role={m.role}>
+            <MessageParts
+              message={m}
+              streaming={status === "streaming" && m.id === messages.at(-1)?.id}
+            />
+          </ChatBubble>
+        ))}
+        {status === "submitted" && (
+          <ChatBubble role="assistant">
+            <p className="animate-pulse text-muted-foreground">
+              Checking today's air for your family…
+            </p>
+          </ChatBubble>
+        )}
+      </ChatLog>
 
-      <div ref={inputWrap} className="mx-auto w-full max-w-3xl px-3 pb-3">
-        <PromptInput onSubmit={submit} className="rounded-3xl bg-card shadow-soft">
-          <PromptInputTextarea
-            placeholder="Ask about outdoor time, routes, windows, masks…"
-            autoFocus
-          />
-          <PromptInputFooter className="justify-end">
-            <PromptInputSubmit status={status} onStop={stop} />
-          </PromptInputFooter>
-        </PromptInput>
+      <div className="mx-auto w-full max-w-3xl px-3 pb-3">
+        <ChatComposer busy={busy} onSend={ask} onStop={() => void stop()} textareaRef={input} />
         <p className="mt-2 text-center text-[0.7rem] text-muted-foreground">
           Gentle guidance, not medical advice. If anyone feels unwell, please contact a doctor.
         </p>
