@@ -5,7 +5,14 @@ import { useState } from "react";
 import { LevelPill } from "@/components/app/aqi-ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { cleanestIndex, fetchAirSnapshot, findWindows, windowLabel } from "@/lib/aqi";
+import {
+  CLEAN_AQI,
+  cleanestIndex,
+  fetchAirSnapshot,
+  findWindows,
+  nextDay,
+  windowLabel,
+} from "@/lib/aqi";
 import { newId } from "@/lib/family";
 import { placeStore, savedPlacesStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -101,7 +108,7 @@ export function SavedPlaces() {
             const q = queries[i];
             const d = q?.data;
             const isActive = p.lat === active.lat && p.lon === active.lon;
-            const best = d ? findWindows(d.hourly.slice(0, 24), 100, 1, 1) : null;
+            const best = d ? findWindows(nextDay(d.hourly), CLEAN_AQI, 1, 1) : null;
             return (
               <li key={p.id} className="relative">
                 <button

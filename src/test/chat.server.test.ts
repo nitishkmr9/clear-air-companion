@@ -2,12 +2,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { Member } from "@/lib/family";
-import {
-  bodySchema,
-  buildInstructions,
-  friendlyError,
-  handleChat,
-} from "@/lib/chat.server";
+import { bodySchema, buildInstructions, friendlyError, handleChat } from "@/lib/chat.server";
 import { MAX_BODY_BYTES, MAX_TEXT_CHARS } from "@/lib/chat-limits";
 
 import { hour, snapshot } from "./fixtures";

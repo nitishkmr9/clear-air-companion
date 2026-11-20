@@ -37,8 +37,8 @@ export default tseslint.config(
     },
   },
   {
-    // Vendored UI kits export variants/helpers next to components by design.
-    files: ["src/components/ui/**/*.tsx", "src/components/ai-elements/**/*.tsx"],
+    // The vendored UI kit exports variants/helpers next to components by design.
+    files: ["src/components/ui/**/*.tsx"],
     rules: { "react-refresh/only-export-components": "off" },
   },
   eslintPluginPrettier,

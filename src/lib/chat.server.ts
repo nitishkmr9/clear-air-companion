@@ -1,14 +1,22 @@
 import { convertToModelMessages, type UIMessage } from "ai";
 import { z } from "zod";
 
-import { aqiInfo, clockLabel, fetchAirSnapshot, findWindows, hourLabel, windowLabel } from "./aqi";
+import {
+  aqiInfo,
+  CLEAN_AQI,
+  clockLabel,
+  fetchAirSnapshot,
+  findWindows,
+  hourLabel,
+  nextDay,
+  windowLabel,
+} from "./aqi";
 import { KIND_META, safeThreshold, type Member } from "./family";
 import { createResponsesCall } from "./ai/responses.ts";
 import { MAX_BODY_BYTES, MAX_TEXT_CHARS } from "./chat-limits";
 
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1";
 const MODEL = "openai/gpt-6-astra";
-
 
 // Only the parts the client actually sends are checked strictly; other part types
 // (reasoning, step markers) pass through untouched but must still carry a `type`.
@@ -83,14 +91,14 @@ export function buildInstructions(
   const c = snapshot.current;
   const info = aqiInfo(c.aqi);
   const now = c.time;
-  const next24 = snapshot.hourly
-    .slice(0, 24)
+  const day = nextDay(snapshot.hourly);
+  const next24 = day
     .map(
       (h) =>
         `${h.time.slice(0, 10) === now.slice(0, 10) ? "today" : "tmrw"} ${hourLabel(h.time)}: AQI ${h.aqi}, PM2.5 ${h.pm25}`,
     )
     .join("\n");
-  const general = findWindows(snapshot.hourly.slice(0, 24), 100, 1, 3);
+  const general = findWindows(day, CLEAN_AQI, 1, 3);
 
   const familyText = family.length
     ? family
@@ -101,7 +109,7 @@ export function buildInstructions(
                 .map((r) => {
                   const thr = safeThreshold(m.kind, r.intensity);
                   const w = findWindows(
-                    snapshot.hourly.slice(0, 24),
+                    day,
                     thr,
                     Math.max(1, Math.ceil(r.minutes / 60)),
                     2,
@@ -125,7 +133,7 @@ SAFETY: You are not a medical professional; for symptoms like breathlessness, ch
 
 LIVE AIR DATA for ${snapshot.place} (local time now ${now}, timezone ${snapshot.timezone}; US AQI scale):
 Current: AQI ${c.aqi} (${info.label}), PM2.5 ${c.pm25} µg/m³, PM10 ${c.pm10} µg/m³, NO₂ ${c.no2}, O₃ ${c.o3}, temp ${c.temp}°C, humidity ${c.humidity}%, wind ${c.wind} km/h.
-Best general windows next 24h (AQI ≤ 100${general.relaxed ? " not reached — these are the cleanest hours" : ""}): ${general.windows.map((w) => `${windowLabel(w, now)} avg AQI ${w.avgAqi}`).join("; ")}
+Best general windows next 24h (AQI ≤ ${CLEAN_AQI}${general.relaxed ? " not reached — these are the cleanest hours" : ""}): ${general.windows.map((w) => `${windowLabel(w, now)} avg AQI ${w.avgAqi}`).join("; ")}
 Hourly forecast:
 ${next24}
 

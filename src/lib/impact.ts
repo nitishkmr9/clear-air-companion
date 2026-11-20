@@ -1,4 +1,5 @@
 // Impact rules: CO2, money and pollution-dose estimates. Values are transparent averages.
+import type { ImpactEntry } from "./store";
 
 export type TransportMode = "car" | "carpool" | "metro" | "bus" | "bike" | "walk";
 
@@ -87,6 +88,41 @@ export function currentStreak(dayKeys: string[], todayKey: string) {
     cursor.setUTCDate(cursor.getUTCDate() - 1);
   }
   return streak;
+}
+
+/** A mature tree absorbs roughly 21 kg of CO₂ a year. */
+export const TREE_KG_PER_YEAR = 21;
+
+/** CO₂ avoided expressed as days of one tree's absorption. */
+export function treeDays(co2Kg: number) {
+  return Math.round(co2Kg / (TREE_KG_PER_YEAR / 365));
+}
+
+export const ACTION_LABEL: Record<ImpactEntry["kind"], string> = {
+  trip: "Low-emission trip",
+  shift: "Cleaner time slot",
+  indoor: "Indoor habit",
+};
+
+/** Sum of CO₂ (kg), money (₹) and dust dose (µg) across all entries. */
+export function impactTotals(entries: ImpactEntry[]) {
+  return entries.reduce(
+    (a, e) => ({ co2: a.co2 + e.co2Kg, money: a.money + e.money, dose: a.dose + e.doseUg }),
+    { co2: 0, money: 0, dose: 0 },
+  );
+}
+
+/** One chart row per day with that day's totals (CO₂ to 2 decimals, money to whole ₹). */
+export function impactChart(entries: ImpactEntry[], days: string[]) {
+  return days.map((d) => {
+    const t = impactTotals(entries.filter((e) => e.date === d));
+    return { day: d.slice(8), co2: round2(t.co2), money: Math.round(t.money), dose: t.dose };
+  });
+}
+
+/** Newest actions first. */
+export function recentActions(entries: ImpactEntry[], limit = 12) {
+  return [...entries].sort((a, b) => b.date.localeCompare(a.date)).slice(0, limit);
 }
 
 function round2(n: number) {

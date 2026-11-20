@@ -53,7 +53,13 @@ export function ChatComposer({ busy, onSend, onStop, textareaRef }: ChatComposer
         className="max-h-48 min-h-12 flex-1 resize-none bg-transparent px-3 py-2 text-base outline-none placeholder:text-muted-foreground md:text-sm"
       />
       {busy ? (
-        <Button type="button" size="icon" variant="soft" onClick={onStop} aria-label="Stop the reply">
+        <Button
+          type="button"
+          size="icon"
+          variant="soft"
+          onClick={onStop}
+          aria-label="Stop the reply"
+        >
           <SquareIcon className="size-4" aria-hidden />
         </Button>
       ) : (

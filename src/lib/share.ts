@@ -1,10 +1,10 @@
-import { aqiInfo, findWindows, windowLabel, type AirSnapshot } from "./aqi";
+import { aqiInfo, CLEAN_AQI, findWindows, nextDay, windowLabel, type AirSnapshot } from "./aqi";
 
 /** Plain-text message describing today's air, ready for WhatsApp or any chat. */
 export function shareText(data: AirSnapshot, origin: string) {
   const c = data.current;
   const info = aqiInfo(c.aqi);
-  const best = findWindows(data.hourly.slice(0, 24), 100, 1, 1);
+  const best = findWindows(nextDay(data.hourly), CLEAN_AQI, 1, 1);
   const w = best.windows[0];
   const lines = [
     `🌿 Air in ${data.place} right now: AQI ${c.aqi} (${info.label}) · PM2.5 ${c.pm25} µg/m³`,

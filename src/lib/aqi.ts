@@ -139,6 +139,16 @@ export const LEVEL_CLASSES: Record<
   },
 };
 
+/** "Moderate or better": the everyday comfort line for general clean-air windows. */
+export const CLEAN_AQI = 100;
+/** Forecast hours we plan around. */
+export const FORECAST_HOURS = 24;
+
+/** The next day of hourly forecast. */
+export function nextDay(hours: HourPoint[]) {
+  return hours.slice(0, FORECAST_HOURS);
+}
+
 export interface Window {
   start: string;
   end: string; // exclusive end hour
@@ -323,4 +333,11 @@ export function cleanestIndex(aqis: (number | undefined)[]): number | null {
 
 function round1(n: number) {
   return Math.round(n * 10) / 10;
+}
+
+/** Times of the hours that fall inside any of the windows (used to outline them on charts). */
+export function hoursInWindows(hours: HourPoint[], windows: Window[]) {
+  return new Set(
+    hours.filter((h) => windows.some((w) => h.time >= w.start && h.time < w.end)).map((h) => h.time),
+  );
 }

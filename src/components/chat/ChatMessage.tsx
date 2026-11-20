@@ -44,7 +44,10 @@ export function ThinkingNote({ text, thinking }: { text: string; thinking: boole
         <span className={cn(thinking && "animate-pulse")}>
           {thinking ? "Thinking…" : "How I worked this out"}
         </span>
-        <ChevronDownIcon className="size-4 transition-transform group-open:rotate-180" aria-hidden />
+        <ChevronDownIcon
+          className="size-4 transition-transform group-open:rotate-180"
+          aria-hidden
+        />
       </summary>
       <div className="mt-3">
         <Markdown text={text} />

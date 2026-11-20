@@ -5,11 +5,15 @@ on:
     branches: [main]
   pull_request:
 
+env:
+  # Run JavaScript actions on Node 24 (Node 20 is deprecated on GitHub runners).
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - name: Lint
