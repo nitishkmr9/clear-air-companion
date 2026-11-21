@@ -10,6 +10,6 @@
 - [x] Code quality: remove unused UI parts and packages, split Planner page, shared time helper
 - [x] Security: fixed vulnerable sub-packages, stricter chat limits, security headers
 - [x] Accessibility: zero automated audit issues on every page, pop-up, dropdown and error screen (desktop + phone)
-- [ ] Code quality round 2: replace oversized chat kit with small chat parts, split large pages, test chat parts
-- [ ] GitHub check fails at the Lint step (and Node 20 warning) — make CI green
+- [x] Code quality round 2: replace oversized chat kit with small chat parts, split large pages, shared tested rules
+- [x] GitHub check fails at the Lint step (and Node 20 warning) — make CI green
 - [ ] picomatch advisory — waiting on a fixed release from its maintainers (none published yet)

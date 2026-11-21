@@ -338,6 +338,8 @@ function round1(n: number) {
 /** Times of the hours that fall inside any of the windows (used to outline them on charts). */
 export function hoursInWindows(hours: HourPoint[], windows: Window[]) {
   return new Set(
-    hours.filter((h) => windows.some((w) => h.time >= w.start && h.time < w.end)).map((h) => h.time),
+    hours
+      .filter((h) => windows.some((w) => h.time >= w.start && h.time < w.end))
+      .map((h) => h.time),
   );
 }

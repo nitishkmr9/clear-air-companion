@@ -1,12 +1,19 @@
 import { createFileRoute, Link, useHydrated } from "@tanstack/react-router";
 import { Flame, Leaf, PiggyBank, Wind } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import { PageHeader } from "@/components/app/AppShell";
 import { Button } from "@/components/ui/button";
 import { lastDays } from "@/lib/dates";
-import { currentStreak } from "@/lib/impact";
+import {
+  ACTION_LABEL,
+  currentStreak,
+  impactChart,
+  impactTotals,
+  recentActions,
+  treeDays as toTreeDays,
+} from "@/lib/impact";
 import { impactStore, todayKey } from "@/lib/store";
 
 export const Route = createFileRoute("/impact")({
@@ -35,34 +42,19 @@ function ImpactPage() {
   const hydrated = useHydrated();
   const today = hydrated ? todayKey() : "";
 
-  const totals = useMemo(
-    () =>
-      entries.reduce(
-        (a, e) => ({ co2: a.co2 + e.co2Kg, money: a.money + e.money, dose: a.dose + e.doseUg }),
-        { co2: 0, money: 0, dose: 0 },
-      ),
-    [entries],
-  );
+  const totals = useMemo(() => impactTotals(entries), [entries]);
   const streak = today
     ? currentStreak(
         entries.map((e) => e.date),
         today,
       )
     : 0;
-  const chart = useMemo(() => {
-    if (!hydrated) return [];
-    return lastDays(14).map((d) => {
-      const day = entries.filter((e) => e.date === d);
-      return {
-        day: d.slice(8),
-        co2: Math.round(day.reduce((s, e) => s + e.co2Kg, 0) * 100) / 100,
-        money: Math.round(day.reduce((s, e) => s + e.money, 0)),
-        dose: day.reduce((s, e) => s + e.doseUg, 0),
-      };
-    });
-  }, [entries, hydrated]);
-  const recent = [...entries].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 12);
-  const treeDays = Math.round(totals.co2 / (21 / 365));
+  const chart = useMemo(
+    () => (hydrated ? impactChart(entries, lastDays(14)) : []),
+    [entries, hydrated],
+  );
+  const recent = recentActions(entries);
+  const treeDays = toTreeDays(totals.co2);
 
   return (
     <div className="mx-auto max-w-6xl px-4 pb-16 md:px-6">
@@ -141,12 +133,7 @@ function ImpactPage() {
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium text-foreground">{e.label}</p>
                     <p className="text-xs text-muted-foreground">
-                      {e.date} ·{" "}
-                      {e.kind === "trip"
-                        ? "Low-emission trip"
-                        : e.kind === "shift"
-                          ? "Cleaner time slot"
-                          : "Indoor habit"}
+                      {e.date} · {ACTION_LABEL[e.kind]}
                     </p>
                   </div>
                   <p className="shrink-0 text-right text-xs text-muted-foreground">
@@ -175,7 +162,7 @@ function Kpi({
   note,
   highlight,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
   value: string;
   note: string;

@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
 
-import { diaryInsight, SMOGGY_AQI } from "@/lib/diary";
+import {
+  diaryChart,
+  diaryInsight,
+  insightMessage,
+  needsDoctorNudge,
+  SEVERITY,
+  SMOGGY_AQI,
+  symptomLoad,
+  SYMPTOMS,
+} from "@/lib/diary";
 import type { DiaryEntry } from "@/lib/store";
 
 const entry = (date: string, aqi: number | undefined, severity: 1 | 2 | 3, n = 1): DiaryEntry => ({
@@ -45,5 +54,60 @@ describe("health diary insight", () => {
       entry("2026-11-11", 60, 1),
     ]);
     expect(r).toEqual({ smoggyAvg: 2, cleanAvg: 1, smoggyDays: 1, cleanDays: 1 });
+  });
+});
+
+describe("symptom load and doctor nudge", () => {
+  it("load is severity × number of symptoms, at least one", () => {
+    expect(symptomLoad({ severity: 3, symptoms: ["cough", "wheeze"] })).toBe(6);
+    expect(symptomLoad({ severity: 2, symptoms: [] })).toBe(2);
+  });
+  it("strong symptoms or breathlessness suggest contacting a doctor", () => {
+    expect(needsDoctorNudge({ severity: 3, symptoms: ["cough"] })).toBe(true);
+    expect(needsDoctorNudge({ severity: 1, symptoms: ["breathless"] })).toBe(true);
+    expect(needsDoctorNudge({ severity: 2, symptoms: ["cough"] })).toBe(false);
+  });
+  it("offers 7 symptoms and 3 strength levels", () => {
+    expect(SYMPTOMS).toHaveLength(7);
+    expect(SEVERITY.map((s) => s.v)).toEqual([1, 2, 3]);
+  });
+});
+
+describe("diary chart", () => {
+  it("one row per day with total load and average AQI, null AQI when none logged", () => {
+    const rows = diaryChart(
+      [
+        entry("2026-11-10", 200, 3, 2),
+        entry("2026-11-10", 100, 1),
+        entry("2026-11-11", undefined, 2),
+      ],
+      ["2026-11-10", "2026-11-11", "2026-11-12"],
+    );
+    expect(rows).toEqual([
+      { day: "10", load: 7, aqi: 150 },
+      { day: "11", load: 2, aqi: null },
+      { day: "12", load: 0, aqi: null },
+    ]);
+  });
+});
+
+describe("diary insight message", () => {
+  it("asks for more days until there is a comparison", () => {
+    expect(insightMessage(null)).toMatch(/^Log a few days/);
+  });
+  it("is reassuring when smoggy days are no worse", () => {
+    expect(insightMessage({ smoggyAvg: 1, cleanAvg: 2, smoggyDays: 1, cleanDays: 1 })).toMatch(
+      /don't seem to bother/,
+    );
+  });
+  it("states how many times stronger symptoms were on smoggy days", () => {
+    expect(insightMessage({ smoggyAvg: 5, cleanAvg: 2, smoggyDays: 1, cleanDays: 1 })).toContain(
+      "about 2.5× stronger",
+    );
+  });
+  it("says 'noticeably' when clean days had no symptoms", () => {
+    expect(insightMessage({ smoggyAvg: 3, cleanAvg: 0, smoggyDays: 1, cleanDays: 1 })).toContain(
+      "about noticeably stronger",
+    );
   });
 });

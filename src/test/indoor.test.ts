@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { humidityTip, withIndoorHabit } from "@/lib/indoor";
+import { canVentilate, humidityTip, withIndoorHabit } from "@/lib/indoor";
 import type { ImpactEntry } from "@/lib/store";
 
 describe("humidity advice", () => {
@@ -43,5 +43,12 @@ describe("indoor habit checklist → impact tracker", () => {
     const other: ImpactEntry = { ...withIndoorHabit([], { ...habit, on: true })[0]!, id: "x" };
     const both = [...withIndoorHabit([], { ...habit, on: true }), other];
     expect(withIndoorHabit(both, { ...habit, on: false })).toEqual([other]);
+  });
+});
+
+describe("ventilation", () => {
+  it("windows can open up to AQI 100, not above", () => {
+    expect(canVentilate(100)).toBe(true);
+    expect(canVentilate(101)).toBe(false);
   });
 });

@@ -1,13 +1,20 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  ACTION_LABEL,
   cleanAirScore,
   currentStreak,
   doseAvoidedUg,
+  impactChart,
+  impactTotals,
+  recentActions,
+  TREE_KG_PER_YEAR,
+  treeDays,
   tripCo2,
   tripCost,
   tripSavings,
 } from "@/lib/impact";
+import type { ImpactEntry } from "@/lib/store";
 
 describe("trip CO₂ and cost", () => {
   it("solo car is 0.17 kg CO₂ and ₹8 per km", () => {
@@ -94,5 +101,57 @@ describe("clean-air streak", () => {
   });
   it("is 0 with no actions", () => {
     expect(currentStreak([], "2026-11-16")).toBe(0);
+  });
+});
+
+const action = (date: string, co2Kg: number, money: number, doseUg: number): ImpactEntry => ({
+  id: `${date}-${co2Kg}`,
+  date,
+  kind: "trip",
+  label: "Metro",
+  co2Kg,
+  money,
+  doseUg,
+});
+
+describe("tree equivalent", () => {
+  it("one tree absorbs 21 kg CO₂ a year, so 21 kg is 365 tree-days", () => {
+    expect(TREE_KG_PER_YEAR).toBe(21);
+    expect(treeDays(21)).toBe(365);
+    expect(treeDays(1.4)).toBe(24);
+  });
+});
+
+describe("impact totals and chart", () => {
+  const entries = [
+    action("2026-11-15", 1.4, 55, 100),
+    action("2026-11-16", 1.234, 40.6, 20),
+    action("2026-11-16", 0.5, 10, 30),
+  ];
+  it("adds CO₂, money and dust dose across all actions", () => {
+    const t = impactTotals(entries);
+    expect(t.co2).toBeCloseTo(3.134);
+    expect(t.money).toBeCloseTo(105.6);
+    expect(t.dose).toBe(150);
+  });
+  it("one chart row per day, CO₂ to 2 decimals and whole rupees", () => {
+    expect(impactChart(entries, ["2026-11-15", "2026-11-16", "2026-11-17"])).toEqual([
+      { day: "15", co2: 1.4, money: 55, dose: 100 },
+      { day: "16", co2: 1.73, money: 51, dose: 50 },
+      { day: "17", co2: 0, money: 0, dose: 0 },
+    ]);
+  });
+  it("recent actions are newest first and capped", () => {
+    const r = recentActions(entries, 2);
+    expect(r).toHaveLength(2);
+    expect(r.every((e) => e.date === "2026-11-16")).toBe(true);
+    expect(recentActions(entries)).toHaveLength(3);
+  });
+  it("labels each kind of action", () => {
+    expect(ACTION_LABEL).toEqual({
+      trip: "Low-emission trip",
+      shift: "Cleaner time slot",
+      indoor: "Indoor habit",
+    });
   });
 });

@@ -12,13 +12,7 @@ import { BestWindows } from "@/components/today/BestWindows";
 import { CurrentAir } from "@/components/today/CurrentAir";
 import { FamilyNow } from "@/components/today/FamilyNow";
 import { Button } from "@/components/ui/button";
-import {
-  CLEAN_AQI,
-  findWindows,
-  hoursInWindows,
-  nextDay,
-  type AirSnapshot,
-} from "@/lib/aqi";
+import { CLEAN_AQI, findWindows, hoursInWindows, nextDay, type AirSnapshot } from "@/lib/aqi";
 import { greeting } from "@/lib/dates";
 import { familyStore, useAir } from "@/lib/store";
 

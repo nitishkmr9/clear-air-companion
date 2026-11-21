@@ -108,12 +108,7 @@ export function buildInstructions(
             ? m.routines
                 .map((r) => {
                   const thr = safeThreshold(m.kind, r.intensity);
-                  const w = findWindows(
-                    day,
-                    thr,
-                    Math.max(1, Math.ceil(r.minutes / 60)),
-                    2,
-                  );
+                  const w = findWindows(day, thr, Math.max(1, Math.ceil(r.minutes / 60)), 2);
                   return `  - ${r.label} (usually ${clockLabel(r.hour)}, ${r.minutes} min, ${r.intensity}${r.flexible ? ", flexible" : ", fixed time"}). Comfort threshold AQI ≤ ${thr}. ${w.relaxed ? "No hour meets it; cleanest" : "Clean"} windows: ${w.windows.map((x) => `${windowLabel(x, now)} (avg AQI ${x.avgAqi})`).join("; ")}`;
                 })
                 .join("\n")

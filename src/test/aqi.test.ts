@@ -8,6 +8,8 @@ import {
   fetchAirSnapshot,
   findWindows,
   hourLabel,
+  hoursInWindows,
+  nextDay,
   searchPlaces,
   windowLabel,
 } from "@/lib/aqi";
@@ -188,5 +190,22 @@ describe("searchPlaces", () => {
       vi.fn(async () => ({ ok: false, json: async () => ({}) })),
     );
     expect(await searchPlaces("Delhi")).toEqual([]);
+  });
+});
+
+describe("forecast helpers", () => {
+  it("the planning day is the next 24 hours", () => {
+    const hours = Array.from({ length: 30 }, (_, i) =>
+      h(i % 24, 50, 25, i < 24 ? "2026-11-16" : "2026-11-17"),
+    );
+    expect(nextDay(hours)).toHaveLength(24);
+    expect(nextDay(hours.slice(0, 5))).toHaveLength(5);
+  });
+  it("marks only the hours inside a clean window (end hour excluded)", () => {
+    const hours = [h(8, 50), h(9, 60), h(10, 70), h(11, 200)];
+    const set = hoursInWindows(hours, [
+      { start: "2026-11-16T08:00", end: "2026-11-16T10:00", hours: 2, avgAqi: 55, maxAqi: 60 },
+    ]);
+    expect([...set]).toEqual(["2026-11-16T08:00", "2026-11-16T09:00"]);
   });
 });

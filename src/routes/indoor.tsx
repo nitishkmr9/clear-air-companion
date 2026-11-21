@@ -4,8 +4,8 @@ import { useMemo } from "react";
 
 import { AirError, AirLoading, LevelPill } from "@/components/app/aqi-ui";
 import { PageHeader } from "@/components/app/AppShell";
-import { findWindows, windowLabel, type AirSnapshot } from "@/lib/aqi";
-import { humidityTip as getHumidityTip, withIndoorHabit } from "@/lib/indoor";
+import { CLEAN_AQI, findWindows, nextDay, windowLabel, type AirSnapshot } from "@/lib/aqi";
+import { canVentilate, HABITS, humidityTip as getHumidityTip, withIndoorHabit } from "@/lib/indoor";
 import { impactStore, indoorChecksStore, todayKey, useAir } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
@@ -29,45 +29,6 @@ export const Route = createFileRoute("/indoor")({
   }),
   component: IndoorPage,
 });
-
-const HABITS = [
-  {
-    id: "no-incense",
-    title: "Skip incense & candles today",
-    impact: "Burning incense can raise indoor PM2.5 several times over in minutes.",
-    dose: 150,
-  },
-  {
-    id: "lid-cook",
-    title: "Cook with lids and the exhaust on",
-    impact: "Range hoods remove a large share of cooking smoke and gas fumes.",
-    dose: 120,
-  },
-  {
-    id: "wet-mop",
-    title: "Wet-mop instead of sweeping",
-    impact: "Dry sweeping re-launches settled dust; damp cloths trap it.",
-    dose: 60,
-  },
-  {
-    id: "shoes-off",
-    title: "Shoes off at the door",
-    impact: "Keeps road dust and soot from being tracked through the home.",
-    dose: 40,
-  },
-  {
-    id: "doors-closed",
-    title: "Seal gaps on smoggy hours",
-    impact: "A rolled towel at door/window gaps slows outdoor smog creeping in.",
-    dose: 80,
-  },
-  {
-    id: "plants",
-    title: "Dust plant leaves & filters",
-    impact: "Clean purifier/AC filters keep doing their job efficiently.",
-    dose: 50,
-  },
-];
 
 function IndoorPage() {
   const { data, isPending, isError, refetch } = useAir();
@@ -97,12 +58,8 @@ function IndoorBody({ data }: { data: AirSnapshot }) {
   const checks = indoorChecksStore.use();
   const date = todayKey();
   const c = data.current;
-  const next24 = data.hourly.slice(0, 24);
-  const vent = useMemo(() => {
-    const scored = findWindows(next24, 100, 1, 2);
-    return scored;
-  }, [next24]);
-  const openNow = c.aqi <= 100;
+  const vent = useMemo(() => findWindows(nextDay(data.hourly), CLEAN_AQI, 1, 2), [data.hourly]);
+  const openNow = canVentilate(c.aqi);
 
   const humidity = c.humidity;
   const humidityTip = getHumidityTip(humidity);
